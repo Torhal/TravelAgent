@@ -160,7 +160,7 @@ do
 		else
 			level_str = string.format("%s%d - %d|r", hex, min, max)
 		end
-		local coord_str = ((not x or not y) and "" or string.format("%d, %d", x, y))
+		local coord_str = ((not x or not y) and "" or string.format("%.2f, %.2f", x, y))
 
 		line = tooltip:AddLine()
 		tooltip:SetCell(line, 1, string.format("%s%s|r", hex, instance))
@@ -225,7 +225,7 @@ do
 				tooltip:SetCell(line, 1, string.format("%s%s|r", hex, instance))
 				tooltip:SetCell(line, 2, level_str)
 				tooltip:SetCell(line, 3, group > 0 and string.format("%d", group) or "")
-				tooltip:SetCell(line, 5, string.format("%d, %d", x or 0, y or 0))
+				tooltip:SetCell(line, 5, string.format("%.2f, %.2f", x or 0, y or 0))
 
 				if _G.TomTom and x and y then
 					tooltip:SetCellScript(line, 1, "OnMouseUp", InstanceOnMouseUp, instance)
