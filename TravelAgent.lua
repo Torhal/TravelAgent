@@ -185,7 +185,6 @@ do
 			end
 		end
 		tooltip:Clear()
-		tooltip:SetAutoHideDelay(0.5, anchor)
 		tooltip:SmartAnchorTo(anchor)
 
 		tooltip:AddHeader()
