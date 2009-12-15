@@ -78,6 +78,8 @@ end
 -- Tooltip scripts.
 -----------------------------------------------------------------------
 do
+	local DrawTooltip
+
 	local HIDE_DELAY = 0.5
 	local coord_line
 
@@ -125,6 +127,18 @@ do
 	-----------------------------------------------------------------------
 	-- DataObj and Tooltip methods.
 	-----------------------------------------------------------------------
+	local tooltip_sections = {
+		["CurInstances"]	= true,
+		["RecZones"]		= true,
+		["RecInstances"]	= true,
+		["Battlegrounds"]	= true
+	}
+
+	local function SectionOnMouseUp(cell, section)
+		tooltip_sections[section] = not tooltip_sections[section]
+
+		DrawTooltip(LDB_anchor)
+	end
 
 	local function InstanceOnMouseUp(cell, instance)
 		if not instance then
@@ -170,7 +184,10 @@ do
 	end
 	local battlegrounds = {}
 
-	local function DrawTooltip(anchor)
+	function DrawTooltip(anchor)
+		-- Set up the data for the updater
+		LDB_anchor = anchor
+
 		if not tooltip then
 			tooltip = LQT:Acquire(ADDON_NAME.."Tooltip", 5, "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
 
@@ -200,32 +217,35 @@ do
 
 			local count = 0
 
-			for instance in LT:IterateZoneInstances(current_zone) do
-				local r, g, b = LT:GetLevelColor(instance)
-				local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
-				local min, max = LT:GetLevel(instance)
-				local _, x, y = LT:GetEntrancePortalLocation(instance)
-				local group = LT:GetInstanceGroupSize(instance)
-				local level_str
+			if tooltip_sections["CurInstances"] then
+				for instance in LT:IterateZoneInstances(current_zone) do
+					local r, g, b = LT:GetLevelColor(instance)
+					local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
+					local min, max = LT:GetLevel(instance)
+					local _, x, y = LT:GetEntrancePortalLocation(instance)
+					local group = LT:GetInstanceGroupSize(instance)
+					local level_str
 
-				if min == max then
-					level_str = string.format("%s%d|r", hex, min)
-				else
-					level_str = string.format("%s%d - %d|r", hex, min, max)
-				end
-				count = count + 1
+					if min == max then
+						level_str = string.format("%s%d|r", hex, min)
+					else
+						level_str = string.format("%s%d - %d|r", hex, min, max)
+					end
+					count = count + 1
 
-				line = tooltip:AddLine()
-				tooltip:SetCell(line, 1, string.format("%s%s|r", hex, instance))
-				tooltip:SetCell(line, 2, level_str)
-				tooltip:SetCell(line, 3, group > 0 and string.format("%d", group) or "")
-				tooltip:SetCell(line, 5, string.format("%.2f, %.2f", x or 0, y or 0))
+					line = tooltip:AddLine()
+					tooltip:SetCell(line, 1, string.format("%s%s|r", hex, instance))
+					tooltip:SetCell(line, 2, level_str)
+					tooltip:SetCell(line, 3, group > 0 and string.format("%d", group) or "")
+					tooltip:SetCell(line, 5, string.format("%.2f, %.2f", x or 0, y or 0))
 
-				if _G.TomTom and x and y then
-					tooltip:SetCellScript(line, 1, "OnMouseUp", InstanceOnMouseUp, instance)
+					if _G.TomTom and x and y then
+						tooltip:SetCellScript(line, 1, "OnMouseUp", InstanceOnMouseUp, instance)
+					end
 				end
 			end
 			tooltip:SetCell(header_line, 1, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "CENTER", 5)
+			tooltip:SetCellScript(header_line, 1, "OnMouseUp", SectionOnMouseUp, "CurInstances")
 		end
 
 		local found_battleground = false
@@ -235,6 +255,7 @@ do
 
 			line = tooltip:AddHeader()
 			tooltip:SetCell(line, 1, L["Recommended Instances"], "CENTER", 5)
+			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "RecInstances")
 			tooltip:AddSeparator()
 
 			for instance in LT:IterateRecommendedInstances() do
@@ -244,38 +265,40 @@ do
 						found_battleground = true
 					end
 					battlegrounds[instance] = true
-				else
+				elseif tooltip_sections["RecInstances"] then
 					Tooltip_AddInstance(instance)
 				end
-
 			end
 		end
 		tooltip:AddLine(" ")
 
 		line = tooltip:AddLine()
 		tooltip:SetCell(line, 1, L["Recommended Zones"], "CENTER", 5)
+		tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "RecZones")
 		tooltip:AddSeparator()
 
-		for zone in LT:IterateRecommendedZones() do
-			local r1, g1, b1 = LT:GetLevelColor(zone)
-			local hex1 = string.format("|cff%02x%02x%02x", r1 * 255, g1 * 255, b1 * 255)
+		if tooltip_sections["RecZones"] then
+			for zone in LT:IterateRecommendedZones() do
+				local r1, g1, b1 = LT:GetLevelColor(zone)
+				local hex1 = string.format("|cff%02x%02x%02x", r1 * 255, g1 * 255, b1 * 255)
 
-			local r2, g2, b2 = LT:GetFactionColor(zone)
-			local hex2 = string.format("|cff%02x%02x%02x", r2 * 255, g2 * 255, b2 * 255)
+				local r2, g2, b2 = LT:GetFactionColor(zone)
+				local hex2 = string.format("|cff%02x%02x%02x", r2 * 255, g2 * 255, b2 * 255)
 
-			local min, max = LT:GetLevel(zone)
-			local continent = LT:GetContinent(zone)
-			local level_str
+				local min, max = LT:GetLevel(zone)
+				local continent = LT:GetContinent(zone)
+				local level_str
 
-			if min == max then
-				level_str = string.format("%s%d|r", hex1, min)
-			else
-				level_str = string.format("%s%d - %d|r", hex1, min, max)
+				if min == max then
+					level_str = string.format("%s%d|r", hex1, min)
+				else
+					level_str = string.format("%s%d - %d|r", hex1, min, max)
+				end
+				line = tooltip:AddLine()
+				tooltip:SetCell(line, 1, string.format("%s%s|r", hex2, zone))
+				tooltip:SetCell(line, 2, level_str)
+				tooltip:SetCell(line, 4, continent)
 			end
-			line = tooltip:AddLine()
-			tooltip:SetCell(line, 1, string.format("%s%s|r", hex2, zone))
-			tooltip:SetCell(line, 2, level_str)
-			tooltip:SetCell(line, 4, continent)
 		end
 
 		if found_battleground then
@@ -283,10 +306,13 @@ do
 
 			line = tooltip:AddLine()
 			tooltip:SetCell(line, 1, _G.BATTLEGROUNDS, "CENTER", 5)
+			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "Battlegrounds")
 			tooltip:AddSeparator()
 
-			for instance in pairs(battlegrounds) do
-				Tooltip_AddInstance(instance)
+			if tooltip_sections["Battlegrounds"] then
+				for instance in pairs(battlegrounds) do
+					Tooltip_AddInstance(instance)
+				end
 			end
 		end
 		updater.elapsed = 0
