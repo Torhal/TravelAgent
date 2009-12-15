@@ -92,25 +92,21 @@ do
 	-----------------------------------------------------------------------
 	-- Update scripts.
 	-----------------------------------------------------------------------
+	local LDB_anchor
+
 	local updater = CreateFrame("Frame", nil, UIParent)
 	local last_update = 0
 
 	updater:Hide()
-
-	local function UpdateTooltipCoords(self, elapsed)
-		last_update = last_update + elapsed
-
-		if last_update >= 0.3 and coord_line then
-			SetCoordLine()
-			last_update = 0
-		end
-	end
 
 	local function CheckTooltipState(self, elapsed)
 		last_update = last_update + elapsed
 
 		if last_update > 0.1 then
 			if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
+				if coord_line then
+					SetCoordLine()
+				end
 				self.elapsed = 0
 			else
 				self.elapsed = self.elapsed + last_update
@@ -129,7 +125,6 @@ do
 	-----------------------------------------------------------------------
 	-- DataObj and Tooltip methods.
 	-----------------------------------------------------------------------
-	local LDB_anchor
 
 	local function InstanceOnMouseUp(cell, instance)
 		if not instance then
@@ -294,21 +289,19 @@ do
 				Tooltip_AddInstance(instance)
 			end
 		end
-		updater:SetScript("OnUpdate", UpdateTooltipCoords)
+		updater.elapsed = 0
+		updater:SetScript("OnUpdate", CheckTooltipState)
 		updater:Show()
 		tooltip:Show()
 	end
 
 	function DataObj.OnEnter(display, motion)
-		-- Set up the data for the updater
-		LDB_anchor = display
-
 		DrawTooltip(display)
 	end
 
 	function DataObj.OnLeave()
-		updater.elapsed = 0
 		updater:SetScript("OnUpdate", CheckTooltipState)
+		updater.elapsed = 0
 	end
 
 	function DataObj.OnClick(display, button)
