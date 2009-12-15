@@ -78,10 +78,8 @@ end
 -- Tooltip scripts.
 -----------------------------------------------------------------------
 do
-	local DrawTooltip
-
-	local HIDE_DELAY = 0.5
-	local coord_line
+	local DrawTooltip		-- Upvalue needed for chicken-or-egg-syndrome.
+	local coord_line		-- Assigned in DrawTooltip for use elsewhere.
 
 	local function SetCoordLine()
 		local x, y = GetPlayerMapPosition("player")
@@ -95,12 +93,14 @@ do
 	-- Update scripts.
 	-----------------------------------------------------------------------
 	local LDB_anchor
+	local last_update = 0
+	local HIDE_DELAY = 0.5
 
 	local updater = CreateFrame("Frame", nil, UIParent)
-	local last_update = 0
 
 	updater:Hide()
 
+	-- Handles tooltip hiding and the dynamic refresh of coordinates if moving while the tooltip is open.
 	local function CheckTooltipState(self, elapsed)
 		last_update = last_update + elapsed
 
@@ -150,6 +150,7 @@ do
 		TomTom:AddZWaypoint(continent.id, continent.zone_ids[zone], x, y, string.format("%s (%s)", instance, zone), false, true, true, nil, true, true)
 	end
 
+	-- Gathers all data relevant to the given instance and adds it to the tooltip.
 	local function Tooltip_AddInstance(instance)
 		local r, g, b = LT:GetLevelColor(instance)
 		local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
@@ -182,10 +183,12 @@ do
 			tooltip:SetCellScript(line, 1, "OnMouseUp", InstanceOnMouseUp, instance)
 		end
 	end
+
+	-- List of battlegrounds found during the iteration over the recommended instances, so they can be split into their own section.
 	local battlegrounds = {}
 
 	function DrawTooltip(anchor)
-		-- Set up the data for the updater
+		-- Save the value of the anchor so it can be used elsewhere.
 		LDB_anchor = anchor
 
 		if not tooltip then
