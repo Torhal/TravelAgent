@@ -333,10 +333,11 @@ do
 	function DataObj.OnClick(display, button)
 	end
 
-	function DataObj:Update()
+	function TravelAgent:Update()
 		local num = math.random(9)
-		self.text = GetZoneString()
-		self.icon = "Interface\\Icons\\INV_Misc_Map_0" .. num
+
+		DataObj.text = GetZoneString()
+		DataObj.icon = "Interface\\Icons\\INV_Misc_Map_0" .. num
 
 		if tooltip and tooltip:IsVisible() then
 			DrawTooltip(LDB_anchor)
