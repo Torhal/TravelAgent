@@ -368,21 +368,9 @@ do
 end	-- do
 
 function TravelAgent:OnEnable()
-	self:RegisterEvent("ZONE_CHANGED")
-	self:RegisterEvent("ZONE_CHANGED_INDOORS")
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	self:RegisterEvent("ZONE_CHANGED", self.Update)
+	self:RegisterEvent("ZONE_CHANGED_INDOORS", self.Update)
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.Update)
 
-	DataObj:Update()
-end
-
-function TravelAgent:ZONE_CHANGED()
-	DataObj:Update()
-end
-
-function TravelAgent:ZONE_CHANGED_INDOORS()
-	DataObj:Update()
-end
-
-function TravelAgent:ZONE_CHANGED_NEW_AREA()
-	DataObj:Update()
+	self:Update()
 end
