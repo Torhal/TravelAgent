@@ -1,11 +1,9 @@
-local ADDON_NAME = "Topography"
-
 local debug = false
 --@debug@
 debug = true
 --@end-debug@
 
-local L = LibStub("AceLocale-3.0"):NewLocale(ADDON_NAME, "enUS", true, debug)
+local L = LibStub("AceLocale-3.0"):NewLocale("TravelAgent", "enUS", true, debug)
 
 if not L then return end
 
