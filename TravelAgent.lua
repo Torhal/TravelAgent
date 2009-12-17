@@ -12,6 +12,7 @@ local TravelAgent	= LibStub("AceAddon-3.0"):NewAddon(ADDON_NAME, "AceEvent-3.0")
 
 local LQT		= LibStub("LibQTip-1.0")
 local LDB		= LibStub("LibDataBroker-1.1")
+local LDBIcon		= LibStub("LibDBIcon-1.0")
 local LT		= LibStub("LibTourist-3.0")
 local BZ		= LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L			= LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
@@ -54,6 +55,9 @@ local CONTINENT_DATA = {
 local defaults = {
 	profile = {
 		datafeed = {
+			minimap_icon	= {
+				hide	= false,
+			},
 			show_zone	= true,
 			show_subzone	= true,
 		},
@@ -418,6 +422,10 @@ do
 		db = temp_db.profile
 
 		self:SetupOptions()
+
+		if LDBIcon then
+			LDBIcon:Register(ADDON_NAME, DataObj, db.datafeed.minimap_icon)
+		end
 	end
 end	-- do
 
@@ -446,8 +454,23 @@ local function GetOptions()
 					order	= 2,
 					type	= "group",
 					args = {
-						show_zone = {
+						minimap_icon = {
 							order	= 1,
+							type	= "toggle",
+							width	= "full",
+							name	= L["Minimap Icon"],
+							desc	= L["Draws the icon on the minimap."],
+							get	= function()
+									  return not db.datafeed.minimap_icon.hide
+								  end,
+							set	= function(info, value)
+									  db.datafeed.minimap_icon.hide = not value
+
+									  LDBIcon[value and "Show" or "Hide"](LDBIcon, ADDON_NAME)
+								  end,
+						},
+						show_zone = {
+							order	= 2,
 							type	= "toggle",
 							width	= "full",
 							name	= L["Show Zone Name"],
@@ -465,7 +488,7 @@ local function GetOptions()
 								  end,
 						},
 						show_subzone = {
-							order	= 2,
+							order	= 3,
 							type	= "toggle",
 							width	= "full",
 							name	= L["Show Subzone Name"],
