@@ -386,10 +386,8 @@ do
 	end
 
 	function TravelAgent:Update()
-		local num = math.random(9)
-
 		DataObj.text = GetZoneString(true)
-		DataObj.icon = "Interface\\Icons\\INV_Misc_Map_0" .. num
+		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), math.random(9))
 
 		if tooltip and tooltip:IsVisible() then
 			DrawTooltip(LDB_anchor)
