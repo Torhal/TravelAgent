@@ -127,7 +127,7 @@ do
 		x = x * 100
 		y = y * 100
 
-		tooltip:SetCell(coord_line, 5, string.format("%.2f, %.2f", x, y))
+		tooltip:SetCell(coord_line, 6, string.format("%.2f, %.2f", x, y))
 	end
 
 	-----------------------------------------------------------------------
@@ -206,16 +206,18 @@ do
 		local coord_str = ((not x or not y) and "" or string.format("%.2f, %.2f", x, y))
 
 		line = tooltip:AddLine()
-		tooltip:SetCell(line, 1, string.format("%s%s|r", hex, instance))
-		tooltip:SetCell(line, 2, level_str)
-		tooltip:SetCell(line, 3, group > 0 and string.format("%d", group) or "")
-		tooltip:SetCell(line, 4, string.format("%s%s|r", hex2, location or _G.UNKNOWN))
-		tooltip:SetCell(line, 5, coord_str)
+		tooltip:SetCell(line, 2, string.format("%s%s|r", hex, instance))
+		tooltip:SetCell(line, 3, level_str)
+		tooltip:SetCell(line, 4, group > 0 and string.format("%d", group) or "")
+		tooltip:SetCell(line, 5, string.format("%s%s|r", hex2, location or _G.UNKNOWN))
+		tooltip:SetCell(line, 6, coord_str)
 
 		if _G.TomTom and x and y then
 			tooltip:SetCellScript(line, 1, "OnMouseUp", InstanceOnMouseUp, instance)
 		end
 	end
+	local ICON_PLUS = [[|TInterface\BUTTONS\UI-PlusButton-Up:20:20|t]]
+	local ICON_MINUS = [[|TInterface\BUTTONS\UI-MinusButton-Up:20:20|t]]
 
 	-- List of battlegrounds found during the iteration over the recommended instances, so they can be split into their own section.
 	local battlegrounds = {}
@@ -225,7 +227,7 @@ do
 		LDB_anchor = anchor
 
 		if not tooltip then
-			tooltip = LQT:Acquire(ADDON_NAME.."Tooltip", 5, "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
+			tooltip = LQT:Acquire(ADDON_NAME.."Tooltip", 6, "LEFT", "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
 
 			if _G.TipTac and _G.TipTac.AddModifiedTip then
 				-- Pass true as second parameter because hooking OnHide causes C stack overflows
@@ -237,24 +239,28 @@ do
 		tooltip:SetScale(db.tooltip.scale)
 
 		tooltip:AddHeader()
-		tooltip:SetCell(1, 1, GetZoneString(false), "CENTER", 5)
+		tooltip:SetCell(1, 1, GetZoneString(false), "CENTER", 6)
 		tooltip:AddSeparator()
 
 		local line, column = tooltip:AddLine()
 		coord_line = line
 
-		tooltip:SetCell(line, column, _G.LOCATION_COLON)
+		tooltip:SetCell(line, column, _G.LOCATION_COLON, "LEFT", 2)
 		SetCoordLine()
 
-		if LT:DoesZoneHaveInstances(current_zone) then
-			tooltip:AddLine(" ")
+		tooltip:AddLine(" ")
 
+		if LT:DoesZoneHaveInstances(current_zone) then
+			local cur_instances = db.tooltip_sections.cur_instances
 			local header_line = tooltip:AddHeader()
-			tooltip:AddSeparator()
+
+			if cur_instances then
+				tooltip:AddSeparator()
+			end
 
 			local count = 0
 
-			if db.tooltip_sections.cur_instances then
+			if cur_instances then
 				for instance in LT:IterateZoneInstances(current_zone) do
 					local r, g, b = LT:GetLevelColor(instance)
 					local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
@@ -271,29 +277,40 @@ do
 					count = count + 1
 
 					line = tooltip:AddLine()
-					tooltip:SetCell(line, 1, string.format("%s%s|r", hex, instance))
-					tooltip:SetCell(line, 2, level_str)
-					tooltip:SetCell(line, 3, group > 0 and string.format("%d", group) or "")
-					tooltip:SetCell(line, 5, string.format("%.2f, %.2f", x or 0, y or 0))
+					tooltip:SetCell(line, 2, string.format("%s%s|r", hex, instance))
+					tooltip:SetCell(line, 3, level_str)
+					tooltip:SetCell(line, 4, group > 0 and string.format("%d", group) or "")
+					tooltip:SetCell(line, 6, string.format("%.2f, %.2f", x or 0, y or 0))
 
 					if _G.TomTom and x and y then
 						tooltip:SetCellScript(line, 1, "OnMouseUp", InstanceOnMouseUp, instance)
 					end
 				end
 			end
-			tooltip:SetCell(header_line, 1, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "CENTER", 5)
+			tooltip:SetCell(header_line, 1, cur_instances and ICON_MINUS or ICON_PLUS)
+			tooltip:SetCell(header_line, 2, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "LEFT", 5)
+
 			tooltip:SetCellScript(header_line, 1, "OnMouseUp", SectionOnMouseUp, "cur_instances")
+
+			if cur_instances then
+				tooltip:AddLine(" ")
+			end
 		end
 
 		local found_battleground = false
 
 		if LT:HasRecommendedInstances() then
-			tooltip:AddLine(" ")
+			local rec_instances = db.tooltip_sections.rec_instances
 
 			line = tooltip:AddHeader()
-			tooltip:SetCell(line, 1, L["Recommended Instances"], "CENTER", 5)
+			tooltip:SetCell(line, 1, rec_instances and ICON_MINUS or ICON_PLUS)
+			tooltip:SetCell(line, 2, L["Recommended Instances"], "LEFT", 5)
+
 			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "rec_instances")
-			tooltip:AddSeparator()
+
+			if rec_instances then
+				tooltip:AddSeparator()
+			end
 
 			for instance in LT:IterateRecommendedInstances() do
 				if LT:IsBattleground(instance) then
@@ -302,19 +319,26 @@ do
 						found_battleground = true
 					end
 					battlegrounds[instance] = true
-				elseif db.tooltip_sections.rec_instances then
+				elseif rec_instances then
 					Tooltip_AddInstance(instance)
 				end
 			end
+
+			if rec_instances then
+				tooltip:AddLine(" ")
+			end
 		end
-		tooltip:AddLine(" ")
+		local rec_zones = db.tooltip_sections.rec_zones
 
-		line = tooltip:AddLine()
-		tooltip:SetCell(line, 1, L["Recommended Zones"], "CENTER", 5)
+		line = tooltip:AddHeader()
+		tooltip:SetCell(line, 1, rec_zones and ICON_MINUS or ICON_PLUS)
+		tooltip:SetCell(line, 2, L["Recommended Zones"], "LEFT", 5)
+
 		tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "rec_zones")
-		tooltip:AddSeparator()
 
-		if db.tooltip_sections.rec_zones then
+		if rec_zones then
+			tooltip:AddSeparator()
+
 			for zone in LT:IterateRecommendedZones() do
 				local r1, g1, b1 = LT:GetLevelColor(zone)
 				local hex1 = string.format("|cff%02x%02x%02x", r1 * 255, g1 * 255, b1 * 255)
@@ -332,24 +356,29 @@ do
 					level_str = string.format("%s%d - %d|r", hex1, min, max)
 				end
 				line = tooltip:AddLine()
-				tooltip:SetCell(line, 1, string.format("%s%s|r", hex2, zone))
-				tooltip:SetCell(line, 2, level_str)
-				tooltip:SetCell(line, 4, continent)
+				tooltip:SetCell(line, 2, string.format("%s%s|r", hex2, zone))
+				tooltip:SetCell(line, 3, level_str)
+				tooltip:SetCell(line, 5, continent)
 			end
+			tooltip:AddLine(" ")
 		end
 
 		if found_battleground then
-			tooltip:AddLine(" ")
+			local bg_toggled = db.tooltip_sections.battlegrounds
 
-			line = tooltip:AddLine()
-			tooltip:SetCell(line, 1, _G.BATTLEGROUNDS, "CENTER", 5)
+			line = tooltip:AddHeader()
+			tooltip:SetCell(line, 1, bg_toggled and ICON_MINUS or ICON_PLUS)
+			tooltip:SetCell(line, 2, _G.BATTLEGROUNDS, "LEFT", 5)
+
 			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "battlegrounds")
-			tooltip:AddSeparator()
 
-			if db.tooltip_sections.battlegrounds then
+			if bg_toggled then
+				tooltip:AddSeparator()
+
 				for instance in pairs(battlegrounds) do
 					Tooltip_AddInstance(instance)
 				end
+				tooltip:AddLine(" ")
 			end
 		end
 
