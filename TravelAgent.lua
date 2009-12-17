@@ -356,6 +356,8 @@ do
 		if not db.tooltip.hide_hint then
 			tooltip:AddLine(" ")
 			line = tooltip:AddLine()
+			tooltip:SetCell(line, 1, L["Left-click to open the World Map."], "LEFT", 5)
+			line = tooltip:AddLine()
 			tooltip:SetCell(line, 1, L["Right-click to open configuration menu."], "LEFT", 5)
 		end
 		updater.elapsed = 0
@@ -382,6 +384,8 @@ do
 			else
 				InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
 			end
+		elseif button == "LeftButton" then
+			ToggleFrame(WorldMapFrame)
 		end
 	end
 

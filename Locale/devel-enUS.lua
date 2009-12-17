@@ -12,6 +12,8 @@ L["Draws the icon on the minimap."]				= true
 L["Hide Hint Text"]						= true
 L["Hides the hint text at the bottom of the tooltip."]		= true
 
+L["Left-click to open the World Map."]				= true
+
 L["Minimap Icon"]						= true
 L["Move the slider to adjust the scale of the tooltip."]	= true
 
