@@ -4,5 +4,21 @@ local L = LibStub("AceLocale-3.0"):NewLocale(ADDON_NAME, "enUS", true)
 
 if not L then return end
 
-L["Recommended Zones"]		= true
-L["Recommended Instances"]	= true
+L["Datafeed"]							= true
+L["Displays the name of the current subzone."]			= true
+L["Displays the name of the current zone."]			= true
+
+L["Hide Hint Text"]						= true
+L["Hides the hint text at the bottom of the tooltip."]		= true
+
+L["Move the slider to adjust the scale of the tooltip."]	= true
+
+L["Recommended Zones"]						= true
+L["Recommended Instances"]					= true
+L["Right-click to open configuration menu."]			= true
+
+L["Show Subzone Name"]						= true
+L["Show Zone Name"]						= true
+
+L["Tooltip"]							= true
+L["Tooltip Scale"]						= true
