@@ -230,6 +230,7 @@ do
 		end
 		tooltip:Clear()
 		tooltip:SmartAnchorTo(anchor)
+		tooltip:SetScale(db.tooltip.scale)
 
 		tooltip:AddHeader()
 		tooltip:SetCell(1, 1, GetZoneString(false), "CENTER", 5)
