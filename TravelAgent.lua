@@ -82,7 +82,7 @@ local db
 -------------------------------------------------------------------------------
 -- Helper functions
 -------------------------------------------------------------------------------
-local function GetZoneString()
+local function GetZoneString(datafeed)
 	current_zone = GetRealZoneText()
 	current_subzone = GetSubZoneText()
 
@@ -91,8 +91,22 @@ local function GetZoneString()
 	if current_subzone == "" or current_subzone == current_zone then
 		current_subzone = nil
 	end
+	local zone_str, subzone_str
 
-	return string.format("|cff%02x%02x%02x%s%s%s|r", r * 255, g * 255, b * 255, current_zone, (current_subzone and ": " or ""), current_subzone or "")
+	if datafeed then
+		subzone_str = db.datafeed.show_subzone and current_subzone or nil
+		zone_str = db.datafeed.show_zone and current_zone or nil
+	else
+		subzone_str = db.tooltip.show_subzone and current_subzone or nil
+		zone_str = db.tooltip.show_zone and current_zone or nil
+	end
+
+	if not zone_str and not subzone_str then
+		zone_str = current_zone
+	end
+	local colon = (zone_str and subzone_str) and ": " or ""
+
+	return string.format("|cff%02x%02x%02x%s%s%s|r", r * 255, g * 255, b * 255, zone_str or "", colon, subzone_str or "")
 end
 
 
@@ -218,7 +232,7 @@ do
 		tooltip:SmartAnchorTo(anchor)
 
 		tooltip:AddHeader()
-		tooltip:SetCell(1, 1, GetZoneString(), "CENTER", 5)
+		tooltip:SetCell(1, 1, GetZoneString(false), "CENTER", 5)
 		tooltip:AddSeparator()
 
 		local line, column = tooltip:AddLine()
@@ -360,7 +374,7 @@ do
 	function TravelAgent:Update()
 		local num = math.random(9)
 
-		DataObj.text = GetZoneString()
+		DataObj.text = GetZoneString(true)
 		DataObj.icon = "Interface\\Icons\\INV_Misc_Map_0" .. num
 
 		if tooltip and tooltip:IsVisible() then
