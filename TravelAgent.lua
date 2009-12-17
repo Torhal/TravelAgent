@@ -370,6 +370,15 @@ do
 	end
 
 	function DataObj.OnClick(display, button)
+		if button == "RightButton" then
+			local options_frame = InterfaceOptionsFrame
+
+			if options_frame:IsVisible() then
+				options_frame:Hide()
+			else
+				InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
+			end
+		end
 	end
 
 	function TravelAgent:Update()
