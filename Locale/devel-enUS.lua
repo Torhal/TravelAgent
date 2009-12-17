@@ -7,10 +7,12 @@ if not L then return end
 L["Datafeed"]							= true
 L["Displays the name of the current subzone."]			= true
 L["Displays the name of the current zone."]			= true
+L["Draws the icon on the minimap."]				= true
 
 L["Hide Hint Text"]						= true
 L["Hides the hint text at the bottom of the tooltip."]		= true
 
+L["Minimap Icon"]						= true
 L["Move the slider to adjust the scale of the tooltip."]	= true
 
 L["Recommended Zones"]						= true
