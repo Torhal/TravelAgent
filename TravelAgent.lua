@@ -51,6 +51,27 @@ local CONTINENT_DATA = {
 	},
 }
 
+local defaults = {
+	profile = {
+		datafeed = {
+			show_zone	= true,
+			show_subzone	= true,
+		},
+		tooltip = {
+			hide_hint	= false,
+			show_zone	= true,
+			show_subzone	= true,
+			scale		= 1,
+		},
+		tooltip_sections = {
+			cur_instances	= true,
+			rec_zones	= true,
+			rec_instances	= true,
+			battlegrounds	= true
+		}
+	}
+}
+
 -------------------------------------------------------------------------------
 -- Variables.
 -------------------------------------------------------------------------------
@@ -128,15 +149,8 @@ do
 	-----------------------------------------------------------------------
 	-- DataObj and Tooltip methods.
 	-----------------------------------------------------------------------
-	local tooltip_sections = {
-		["CurInstances"]	= true,
-		["RecZones"]		= true,
-		["RecInstances"]	= true,
-		["Battlegrounds"]	= true
-	}
-
 	local function SectionOnMouseUp(cell, section)
-		tooltip_sections[section] = not tooltip_sections[section]
+		db.tooltip_sections[section] = not db.tooltip_sections[section]
 
 		DrawTooltip(LDB_anchor)
 	end
@@ -221,7 +235,7 @@ do
 
 			local count = 0
 
-			if tooltip_sections["CurInstances"] then
+			if db.tooltip_sections.cur_instances then
 				for instance in LT:IterateZoneInstances(current_zone) do
 					local r, g, b = LT:GetLevelColor(instance)
 					local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
@@ -249,7 +263,7 @@ do
 				end
 			end
 			tooltip:SetCell(header_line, 1, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "CENTER", 5)
-			tooltip:SetCellScript(header_line, 1, "OnMouseUp", SectionOnMouseUp, "CurInstances")
+			tooltip:SetCellScript(header_line, 1, "OnMouseUp", SectionOnMouseUp, "cur_instances")
 		end
 
 		local found_battleground = false
@@ -259,7 +273,7 @@ do
 
 			line = tooltip:AddHeader()
 			tooltip:SetCell(line, 1, L["Recommended Instances"], "CENTER", 5)
-			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "RecInstances")
+			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "rec_instances")
 			tooltip:AddSeparator()
 
 			for instance in LT:IterateRecommendedInstances() do
@@ -269,7 +283,7 @@ do
 						found_battleground = true
 					end
 					battlegrounds[instance] = true
-				elseif tooltip_sections["RecInstances"] then
+				elseif db.tooltip_sections.rec_instances then
 					Tooltip_AddInstance(instance)
 				end
 			end
@@ -278,10 +292,10 @@ do
 
 		line = tooltip:AddLine()
 		tooltip:SetCell(line, 1, L["Recommended Zones"], "CENTER", 5)
-		tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "RecZones")
+		tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "rec_zones")
 		tooltip:AddSeparator()
 
-		if tooltip_sections["RecZones"] then
+		if db.tooltip_sections.rec_zones then
 			for zone in LT:IterateRecommendedZones() do
 				local r1, g1, b1 = LT:GetLevelColor(zone)
 				local hex1 = string.format("|cff%02x%02x%02x", r1 * 255, g1 * 255, b1 * 255)
@@ -310,14 +324,20 @@ do
 
 			line = tooltip:AddLine()
 			tooltip:SetCell(line, 1, _G.BATTLEGROUNDS, "CENTER", 5)
-			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "Battlegrounds")
+			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "battlegrounds")
 			tooltip:AddSeparator()
 
-			if tooltip_sections["Battlegrounds"] then
+			if db.tooltip_sections.battlegrounds then
 				for instance in pairs(battlegrounds) do
 					Tooltip_AddInstance(instance)
 				end
 			end
+		end
+
+		if not db.tooltip.hide_hint then
+			tooltip:AddLine(" ")
+			line = tooltip:AddLine()
+			tooltip:SetCell(line, 1, L["Right-click to open configuration menu."], "LEFT", 5)
 		end
 		updater.elapsed = 0
 		updater:SetScript("OnUpdate", CheckTooltipState)
