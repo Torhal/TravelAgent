@@ -53,7 +53,7 @@ local CONTINENT_DATA = {
 }
 
 local defaults = {
-	profile = {
+	global = {
 		datafeed = {
 			minimap_icon	= {
 				hide	= false,
@@ -421,7 +421,7 @@ do
 
 		-- Database voodoo.
 		local temp_db = LibStub("AceDB-3.0"):New(ADDON_NAME.."DB", defaults)
-		db = temp_db.profile
+		db = temp_db.global
 
 		self:SetupOptions()
 
