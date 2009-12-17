@@ -56,6 +56,7 @@ local CONTINENT_DATA = {
 -------------------------------------------------------------------------------
 local current_zone
 local current_subzone
+local db
 
 -------------------------------------------------------------------------------
 -- Helper functions
@@ -367,6 +368,12 @@ do
 		for continent, data in pairs(CONTINENT_DATA) do
 			InitializeZoneData(data.zone_names, data.zone_ids, GetMapZones(data.id))
 		end
+
+		-- Database voodoo.
+		local temp_db = LibStub("AceDB-3.0"):New(ADDON_NAME.."DB", defaults)
+		db = temp_db.profile
+
+		self:SetupOptions()
 	end
 end	-- do
 
@@ -376,4 +383,140 @@ function TravelAgent:OnEnable()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.Update)
 
 	self:Update()
+end
+
+-----------------------------------------------------------------------
+-- Configuration.
+-----------------------------------------------------------------------
+local options
+
+local function GetOptions()
+	if not options then
+		options = {
+			name = ADDON_NAME,
+			childGroups = "tab",
+			type = "group",
+			args = {
+				datafeed = {
+					name	= L["Datafeed"],
+					order	= 2,
+					type	= "group",
+					args = {
+						show_zone = {
+							order	= 1,
+							type	= "toggle",
+							width	= "full",
+							name	= L["Show Zone Name"],
+							desc	= L["Displays the name of the current zone."],
+							get	= function()
+									  return db.datafeed.show_zone
+								  end,
+							set	= function(info, value)
+									  db.datafeed.show_zone = value
+
+									  if not db.datafeed.show_zone and not db.datafeed.show_subzone then
+										  db.datafeed.show_subzone = true
+									  end
+									  TravelAgent:Update()
+								  end,
+						},
+						show_subzone = {
+							order	= 2,
+							type	= "toggle",
+							width	= "full",
+							name	= L["Show Subzone Name"],
+							desc	= L["Displays the name of the current subzone."],
+							get	= function()
+									  return db.datafeed.show_subzone
+								  end,
+							set	= function(info, value)
+									  db.datafeed.show_subzone = value
+
+									  if not db.datafeed.show_zone and not db.datafeed.show_subzone then
+										  db.datafeed.show_zone = true
+									  end
+									  TravelAgent:Update()
+								  end,
+						},
+					},
+				},
+				tooltip = {
+					name = L["Tooltip"],
+					order = 3,
+					type = "group",
+					args = {
+						hide_hint = {
+							order	= 1,
+							type	= "toggle",
+							width	= "full",
+							name	= L["Hide Hint Text"],
+							desc	= L["Hides the hint text at the bottom of the tooltip."],
+							get	= function()
+									  return db.tooltip.hide_hint
+								  end,
+							set	= function(info, value)
+									  db.tooltip.hide_hint = value
+								  end,
+						},
+						show_zone = {
+							order	= 2,
+							type	= "toggle",
+							width	= "full",
+							name	= L["Show Zone Name"],
+							desc	= L["Displays the name of the current zone."],
+							get	= function()
+									  return db.tooltip.show_zone
+								  end,
+							set	= function(info, value)
+									  db.tooltip.show_zone = value
+
+									  if not db.tooltip.show_zone and not db.tooltip.show_subzone then
+										  db.tooltip.show_subzone = true
+									  end
+								  end,
+						},
+						show_subzone = {
+							order	= 3,
+							type	= "toggle",
+							width	= "full",
+							name	= L["Show Subzone Name"],
+							desc	= L["Displays the name of the current subzone."],
+							get	= function()
+									  return db.tooltip.show_subzone
+								  end,
+							set	= function(info, value)
+									  db.tooltip.show_subzone = value
+
+									  if not db.tooltip.show_zone and not db.tooltip.show_subzone then
+										  db.tooltip.show_zone = true
+									  end
+								  end,
+						},
+						scale = {
+							order	= 4,
+							type	= "range",
+							width	= "full",
+							name	= L["Tooltip Scale"],
+							desc	= L["Move the slider to adjust the scale of the tooltip."],
+							min	= 0.5,
+							max	= 1.5,
+							step	= 0.01,
+							get	= function()
+									  return db.tooltip.scale
+								  end,
+							set	= function(info, value)
+									  db.tooltip.scale = math.max(0.5, math.min(1.5, value))
+								  end,
+						},
+					}
+				}
+			}
+		}
+	end
+	return options
+end
+
+function TravelAgent:SetupOptions()
+	LibStub("AceConfig-3.0"):RegisterOptionsTable(ADDON_NAME, GetOptions())
+	self.options_frame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(ADDON_NAME)
 end
