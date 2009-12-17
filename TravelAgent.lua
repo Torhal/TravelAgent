@@ -66,6 +66,7 @@ local defaults = {
 			show_zone	= true,
 			show_subzone	= true,
 			scale		= 1,
+			timer		= 0.25,
 		},
 		tooltip_sections = {
 			cur_instances	= true,
@@ -134,7 +135,6 @@ do
 	-----------------------------------------------------------------------
 	local LDB_anchor
 	local last_update = 0
-	local HIDE_DELAY = 0.5
 
 	local updater = CreateFrame("Frame", nil, UIParent)
 
@@ -153,7 +153,7 @@ do
 			else
 				self.elapsed = self.elapsed + last_update
 
-				if self.elapsed >= HIDE_DELAY then
+				if self.elapsed >= db.tooltip.timer then
 					tooltip = LQT:Release(tooltip)
 					self:Hide()
 					LDB_anchor = nil
@@ -575,6 +575,22 @@ local function GetOptions()
 								  end,
 							set	= function(info, value)
 									  db.tooltip.scale = math.max(0.5, math.min(1.5, value))
+								  end,
+						},
+						timer = {
+							order	= 5,
+							type	= "range",
+							width	= "full",
+							name	= L["Tooltip Timer"],
+							desc	= L["Move the slider to adjust the delay before the tooltip disappears on mouse-out."],
+							min	= 0.1,
+							max	= 2,
+							step	= 0.01,
+							get	= function()
+									  return db.tooltip.timer
+								  end,
+							set	= function(info, value)
+									  db.tooltip.timer = math.max(0.1, math.min(2, value))
 								  end,
 						},
 					}
