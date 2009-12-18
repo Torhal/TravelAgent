@@ -72,7 +72,8 @@ local defaults = {
 			cur_instances	= true,
 			rec_zones	= true,
 			rec_instances	= true,
-			battlegrounds	= true
+			battlegrounds	= true,
+			miscellaneous	= true,
 		}
 	}
 }
@@ -408,9 +409,32 @@ do
 				tooltip:AddLine(" ")
 			end
 		end
+		local misc_toggled = db.tooltip_sections.miscellaneous
+
+		line = tooltip:AddLine()
+
+		tooltip:SetCell(line, 1, misc_toggled and ICON_MINUS or ICON_PLUS)
+		tooltip:SetCell(line, 2, _G.MISCELLANEOUS, "LEFT", 5)
+
+		tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "miscellaneous")
+
+		if misc_toggled then
+			tooltip:AddSeparator()
+
+			line, column = tooltip:AddLine()
+			tooltip:SetCell(line, column, _G.CONTINENT, "LEFT", 2)
+			tooltip:SetCell(line, 6, LT:GetContinent(current_zone))
+
+			local fish_lev = LT:GetFishingLevel(current_zone)
+
+			if fish_lev then
+				line = tooltip:AddLine()
+				tooltip:SetCell(line, 1, string.format(_G.SPELL_FAILED_FISHING_TOO_LOW, fish_lev), "CENTER", 6)
+			end
+			tooltip:AddLine(" ")
+		end
 
 		if not db.tooltip.hide_hint then
-			tooltip:AddLine(" ")
 			line = tooltip:AddLine()
 			tooltip:SetCell(line, 1, L["Left-click to open the World Map."], "LEFT", 5)
 			line = tooltip:AddLine()
