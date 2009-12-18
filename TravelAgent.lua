@@ -231,7 +231,7 @@ do
 		end
 		local coord_str = ((not x or not y) and "" or string.format("%.2f, %.2f", x, y))
 
-		line = tooltip:AddLine()
+		local line = tooltip:AddLine()
 		tooltip:SetCell(line, 1, instance, "LEFT", 2)
 		tooltip:SetCell(line, 3, level_str)
 		tooltip:SetCell(line, 4, group > 0 and string.format("%d", group) or "")
@@ -474,8 +474,10 @@ do
 
 	function TravelAgent:Update()
 		local _, _, _, text = GetZoneData(true)
+		local num = math.random(9)
+
 		DataObj.text = text
-		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), math.random(9))
+		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), num)
 
 		if tooltip and tooltip:IsVisible() then
 			DrawTooltip(LDB_anchor)
