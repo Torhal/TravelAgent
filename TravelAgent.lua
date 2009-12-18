@@ -639,7 +639,7 @@ local function GetOptions()
 							type	= "range",
 							width	= "full",
 							name	= L["Tooltip Timer"],
-							desc	= L["Move the slider to adjust the delay before the tooltip disappears on mouse-out."],
+							desc	= L["Move the slider to adjust the tooltip fade time."],
 							min	= 0.1,
 							max	= 2,
 							step	= 0.01,
