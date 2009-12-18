@@ -268,6 +268,9 @@ do
 
 		local line, column = tooltip:AddHeader()
 		tooltip:SetCell(line, 1, zone_text, "CENTER", 6)
+
+		line, column = tooltip:AddHeader()
+		tooltip:SetCell(line, 1, pvp_label, "CENTER", 6)
 		tooltip:AddSeparator()
 
 		line, column = tooltip:AddLine()
