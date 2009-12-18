@@ -80,23 +80,45 @@ local defaults = {
 -------------------------------------------------------------------------------
 -- Variables.
 -------------------------------------------------------------------------------
-local current_zone
-local current_subzone
 local db
 
 -------------------------------------------------------------------------------
 -- Helper functions
 -------------------------------------------------------------------------------
-local function GetZoneString(datafeed)
-	current_zone = GetRealZoneText()
-	current_subzone = GetSubZoneText()
-
-	local r, g, b = LT:GetFactionColor(current_zone)
+local function GetZoneData(datafeed)
+	local zone_status, subzone_ispvp, controlling_faction = GetZonePVPInfo()
+	local current_zone = GetRealZoneText()
+	local current_subzone = GetSubZoneText()
 
 	if current_subzone == "" or current_subzone == current_zone then
 		current_subzone = nil
 	end
 	local zone_str, subzone_str
+	local label
+	local r, g, b = 1.0, 1.0, 1.0
+
+	if zone_status == "sanctuary" then
+		label = _G.SANCTUARY_TERRITORY
+		r, g, b = 0.41, 0.8, 0.94
+	elseif  zone_status == "arena" then
+		label = _G.FREE_FOR_ALL_TERRITORY
+		r, g, b = 1.0, 0.1, 0.1
+	elseif zone_status == "friendly" then
+		label = string.format(_G.FACTION_CONTROLLED_TERRITORY, controlling_faction)
+		r, g, b = 0.1, 1.0, 0.1
+	elseif zone_status == "hostile" then
+		label = string.format(_G.FACTION_CONTROLLED_TERRITORY, controlling_faction)
+		r, g, b = 1.0, 0.1, 0.1
+	elseif zone_status == "contested" then
+		label = _G.CONTESTED_TERRITORY
+		r, g, b = 1.0, 0.7, 0
+	elseif zone_status == "combat" then
+		label = _G.COMBAT_ZONE
+		r, g, b = 1.0, 0.1, 0.1
+	else
+		label = _G.CONTESTED_TERRITORY
+		r, g, b = 1.0, 0.9294, 0.7607
+	end
 
 	if datafeed then
 		subzone_str = db.datafeed.show_subzone and current_subzone or nil
@@ -110,8 +132,11 @@ local function GetZoneString(datafeed)
 		zone_str = current_zone
 	end
 	local colon = (zone_str and subzone_str) and ": " or ""
+	local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
+	local text = string.format("%s%s%s%s|r", hex, zone_str or "", colon, subzone_str or "")
+	label = string.format("%s%s|r", hex, label)
 
-	return string.format("|cff%02x%02x%02x%s%s%s|r", r * 255, g * 255, b * 255, zone_str or "", colon, subzone_str or "")
+	return current_zone, current_subzone, label, text
 end
 
 
@@ -234,15 +259,17 @@ do
 				TipTac:AddModifiedTip(tooltip, true)
 			end
 		end
+		local current_zone, current_subzone, pvp_label, zone_text = GetZoneData(false)
+
 		tooltip:Clear()
 		tooltip:SmartAnchorTo(anchor)
 		tooltip:SetScale(db.tooltip.scale)
 
-		tooltip:AddHeader()
-		tooltip:SetCell(1, 1, GetZoneString(false), "CENTER", 6)
+		local line, column = tooltip:AddHeader()
+		tooltip:SetCell(line, 1, zone_text, "CENTER", 6)
 		tooltip:AddSeparator()
 
-		local line, column = tooltip:AddLine()
+		line, column = tooltip:AddLine()
 		coord_line = line
 
 		tooltip:SetCell(line, column, _G.LOCATION_COLON, "LEFT", 2)
@@ -419,7 +446,8 @@ do
 	end
 
 	function TravelAgent:Update()
-		DataObj.text = GetZoneString(true)
+		local _, _, _, text = GetZoneData(true)
+		DataObj.text = text
 		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), math.random(9))
 
 		if tooltip and tooltip:IsVisible() then
