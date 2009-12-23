@@ -22,7 +22,7 @@ local LT		= LibStub("LibTourist-3.0")
 local BZ		= LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L			= LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
 
-local DataObj = LDB:NewDataObject(ADDON_NAME,	{
+local DataObj = LDB:NewDataObject(ADDON_NAME, {
 	type	= "data source",
 	label	= ADDON_NAME,
 	text	= " ",
@@ -65,6 +65,7 @@ local defaults = {
 			},
 			show_zone	= true,
 			show_subzone	= true,
+			show_coords	= true,
 		},
 		tooltip = {
 			hide_hint	= false,
@@ -87,6 +88,7 @@ local defaults = {
 -- Variables.
 -------------------------------------------------------------------------------
 local db
+local LDB_text		-- Cache for GetCoords()
 
 -------------------------------------------------------------------------------
 -- Helper functions
@@ -145,6 +147,13 @@ local function GetZoneData(datafeed)
 	return current_zone, current_subzone, label, text
 end
 
+local function GetCoords()
+	local x, y = GetPlayerMapPosition("player")
+	x = x * 100
+	y = y * 100
+
+	return LDB_text.." "..string.format(PARENS_TEMPLATE, string.format("%.2f, %.2f", x, y))
+end
 
 -----------------------------------------------------------------------
 -- Tooltip scripts.
@@ -166,34 +175,37 @@ do
 	-----------------------------------------------------------------------
 	local LDB_anchor
 	local last_update = 0
-
 	local updater = CreateFrame("Frame", nil, UIParent)
 
-	updater:Hide()
+	-- Handles tooltip hiding and the dynamic refresh of coordinates (both for the datafeed and if moving while the tooltip is open).
+	updater:SetScript("OnUpdate",
+			  function(self, elapsed)
+				  last_update = last_update + elapsed
 
-	-- Handles tooltip hiding and the dynamic refresh of coordinates if moving while the tooltip is open.
-	local function CheckTooltipState(self, elapsed)
-		last_update = last_update + elapsed
+				  if last_update > 0.1 then
+					  if tooltip then
+						  if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
+							  if coord_line then
+								  SetCoordLine()
+							  end
+							  self.elapsed = 0
+						  else
+							  self.elapsed = self.elapsed + last_update
 
-		if last_update > 0.1 then
-			if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
-				if coord_line then
-					SetCoordLine()
-				end
-				self.elapsed = 0
-			else
-				self.elapsed = self.elapsed + last_update
+							  if self.elapsed >= db.tooltip.timer then
+								  tooltip = LQT:Release(tooltip)
+								  LDB_anchor = nil
+								  coord_line = nil
+							  end
+						  end
+					  end
 
-				if self.elapsed >= db.tooltip.timer then
-					tooltip = LQT:Release(tooltip)
-					self:Hide()
-					LDB_anchor = nil
-					coord_line = nil
-				end
-			end
-			last_update = 0
-		end
-	end
+					  if db.datafeed.show_coords then
+						  DataObj.text = GetCoords()
+					  end
+					  last_update = 0
+				  end
+			  end)
 
 	-----------------------------------------------------------------------
 	-- DataObj and Tooltip methods.
@@ -449,8 +461,6 @@ do
 			tooltip:SetCell(line, 1, L["Right-click to open configuration menu."], "LEFT", 5)
 		end
 		updater.elapsed = 0
-		updater:SetScript("OnUpdate", CheckTooltipState)
-		updater:Show()
 		tooltip:Show()
 	end
 
@@ -459,7 +469,6 @@ do
 	end
 
 	function DataObj.OnLeave()
-		updater:SetScript("OnUpdate", CheckTooltipState)
 		updater.elapsed = 0
 	end
 
@@ -481,7 +490,9 @@ do
 		local _, _, _, text = GetZoneData(true)
 		local num = math.random(9)
 
-		DataObj.text = text
+		LDB_text = text
+
+		DataObj.text = db.datafeed.show_coords and GetCoords() or text
 		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), num)
 
 		if tooltip and tooltip:IsVisible() then
@@ -596,6 +607,25 @@ local function GetOptions()
 										  db.datafeed.show_zone = true
 									  end
 									  TravelAgent:Update()
+								  end,
+						},
+						show_coords = {
+							order	= 4,
+							type	= "toggle",
+							width	= "full",
+							name	= L["Show Coordinates"],
+							desc	= L["Displays the coordinates of the current location."],
+							get	= function()
+									  return db.datafeed.show_coords
+								  end,
+							set	= function(info, value)
+									  db.datafeed.show_coords = value
+
+									  if db.datafeed.show_coords then
+										  DataObj.text = GetCoords()
+									  else
+										  TravelAgent:Update()
+									  end
 								  end,
 						},
 					},
