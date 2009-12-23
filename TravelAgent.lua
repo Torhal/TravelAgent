@@ -248,8 +248,11 @@ do
 		end
 		local coord_str = ((not x or not y) and "" or string.format("%.2f, %.2f", x, y))
 
+		local complex = LT:GetComplex(instance)
+		local colon = complex and ": " or ""
 		local line = tooltip:AddLine()
-		tooltip:SetCell(line, 1, instance, "LEFT", 2)
+
+		tooltip:SetCell(line, 1, string.format("%s%s%s", complex and complex or "", colon, instance), "LEFT", 2)
 		tooltip:SetCell(line, 3, level_str)
 		tooltip:SetCell(line, 4, group > 0 and string.format("%d", group) or "")
 		tooltip:SetCell(line, 5, string.format("%s%s|r", hex2, location or _G.UNKNOWN))
