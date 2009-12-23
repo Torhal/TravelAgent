@@ -5,6 +5,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale(ADDON_NAME, "enUS", true)
 if not L then return end
 
 L["Datafeed"]							= true
+L["Displays the coordinates of the current location."]		= true
 L["Displays the name of the current subzone."]			= true
 L["Displays the name of the current zone."]			= true
 L["Draws the icon on the minimap."]				= true
@@ -22,6 +23,7 @@ L["Recommended Zones"]						= true
 L["Recommended Instances"]					= true
 L["Right-click to open configuration menu."]			= true
 
+L["Show Coordinates"]						= true
 L["Show Subzone Name"]						= true
 L["Show Zone Name"]						= true
 
