@@ -280,6 +280,7 @@ do
 				TipTac:AddModifiedTip(tooltip, true)
 			end
 		end
+
 		local current_zone, current_subzone, pvp_label, zone_text = GetZoneData(false)
 
 		tooltip:Clear()
@@ -304,14 +305,11 @@ do
 		if LT:DoesZoneHaveInstances(current_zone) then
 			local cur_instances = db.tooltip_sections.cur_instances
 			local header_line = tooltip:AddHeader()
-
-			if cur_instances then
-				tooltip:AddSeparator()
-			end
-
 			local count = 0
 
 			if cur_instances then
+				tooltip:AddSeparator()
+
 				for instance in LT:IterateZoneInstances(current_zone) do
 					local r, g, b = LT:GetLevelColor(instance)
 					local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
@@ -337,15 +335,12 @@ do
 						tooltip:SetCellScript(line, 2, "OnMouseUp", InstanceOnMouseUp, instance)
 					end
 				end
+				tooltip:AddLine(" ")
 			end
 			tooltip:SetCell(header_line, 1, cur_instances and ICON_MINUS or ICON_PLUS)
 			tooltip:SetCell(header_line, 2, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "LEFT", 5)
 
 			tooltip:SetCellScript(header_line, 1, "OnMouseUp", SectionOnMouseUp, "cur_instances")
-
-			if cur_instances then
-				tooltip:AddLine(" ")
-			end
 		end
 
 		local found_battleground = false
@@ -359,6 +354,9 @@ do
 
 			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "rec_instances")
 
+			-- Unfortunately, two separate checks for rec_instances are needed for the separator and
+			-- the empty line below since rec_instances may be false but we need to gather battleground
+			-- information in the instance loop.
 			if rec_instances then
 				tooltip:AddSeparator()
 			end
@@ -379,6 +377,7 @@ do
 				tooltip:AddLine(" ")
 			end
 		end
+
 		local rec_zones = db.tooltip_sections.rec_zones
 
 		line = tooltip:AddHeader()
@@ -432,6 +431,7 @@ do
 				tooltip:AddLine(" ")
 			end
 		end
+
 		local misc_toggled = db.tooltip_sections.miscellaneous
 
 		line = tooltip:AddLine()
