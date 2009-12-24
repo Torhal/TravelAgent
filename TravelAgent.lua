@@ -149,12 +149,12 @@ local function GetZoneData(datafeed)
 	return current_zone, current_subzone, label, text, color_text
 end
 
-local function GetCoords()
+local function GetCoords(to_chat)
 	local x, y = GetPlayerMapPosition("player")
 	x = x * 100
 	y = y * 100
 
-	return LDB_text.." "..string.format(PARENS_TEMPLATE, string.format("%.2f, %.2f", x, y))
+	return (to_chat and CHAT_TEXT or LDB_TEXT).." "..string.format(_G.PARENS_TEMPLATE, string.format("%.2f, %.2f", x, y))
 end
 
 -----------------------------------------------------------------------
