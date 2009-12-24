@@ -461,9 +461,18 @@ do
 
 		if not db.tooltip.hide_hint then
 			line = tooltip:AddLine()
-			tooltip:SetCell(line, 1, L["Left-click to open the World Map."], "LEFT", 5)
+			tooltip:SetCell(line, 1, L["Left-click to open the World Map."], "LEFT", 6)
+
 			line = tooltip:AddLine()
-			tooltip:SetCell(line, 1, L["Right-click to open configuration menu."], "LEFT", 5)
+			tooltip:SetCell(line, 1, L["Shift+Left-click to announce your location."], "LEFT", 6)
+
+			if Atlas_Toggle then
+				line = tooltip:AddLine()
+				tooltip:SetCell(line, 1, L["Control+Left-click to toggle Atlas."], "LEFT", 6)
+			end
+
+			line = tooltip:AddLine()
+			tooltip:SetCell(line, 1, L["Right-click to open configuration menu."], "LEFT", 6)
 		end
 		updater.elapsed = 0
 		tooltip:Show()
