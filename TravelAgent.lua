@@ -89,6 +89,7 @@ local defaults = {
 -------------------------------------------------------------------------------
 local db
 local LDB_TEXT		-- Cache for GetCoords()
+local CHAT_TEXT		-- Cache for inserting into ChatFrameEditBox
 
 -------------------------------------------------------------------------------
 -- Helper functions
@@ -495,6 +496,7 @@ do
 		local num = math.random(9)
 
 		LDB_TEXT = color_text
+		CHAT_TEXT = text
 
 		DataObj.text = db.datafeed.show_coords and GetCoords() or LDB_TEXT
 		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), num)
