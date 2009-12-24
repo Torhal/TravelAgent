@@ -487,7 +487,14 @@ do
 				InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
 			end
 		elseif button == "LeftButton" then
-			ToggleFrame(WorldMapFrame)
+			if IsShiftKeyDown() then
+				ChatFrameEditBox:Show()
+				ChatFrameEditBox:Insert(GetCoords(true))
+			elseif IsControlKeyDown() and Atlas_Toggle then
+				Atlas_Toggle()
+			else
+				ToggleFrame(WorldMapFrame)
+			end
 		end
 	end
 
