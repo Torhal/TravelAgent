@@ -88,7 +88,7 @@ local defaults = {
 -- Variables.
 -------------------------------------------------------------------------------
 local db
-local LDB_text		-- Cache for GetCoords()
+local LDB_TEXT		-- Cache for GetCoords()
 
 -------------------------------------------------------------------------------
 -- Helper functions
@@ -141,10 +141,11 @@ local function GetZoneData(datafeed)
 	end
 	local colon = (zone_str and subzone_str) and ": " or ""
 	local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
-	local text = string.format("%s%s%s%s|r", hex, zone_str or "", colon, subzone_str or "")
+	local text = string.format("%s%s%s", zone_str or "", colon, subzone_str or "")
+	local color_text = string.format("%s%s%s%s|r", hex, zone_str or "", colon, subzone_str or "")
 	label = string.format("%s%s|r", hex, label)
 
-	return current_zone, current_subzone, label, text
+	return current_zone, current_subzone, label, text, color_text
 end
 
 local function GetCoords()
@@ -281,7 +282,7 @@ do
 			end
 		end
 
-		local current_zone, current_subzone, pvp_label, zone_text = GetZoneData(false)
+		local current_zone, current_subzone, pvp_label, _, zone_text = GetZoneData(false)
 
 		tooltip:Clear()
 		tooltip:SmartAnchorTo(anchor)
@@ -490,12 +491,12 @@ do
 	end
 
 	function TravelAgent:Update()
-		local _, _, _, text = GetZoneData(true)
+		local _, _, _, text, color_text = GetZoneData(true)
 		local num = math.random(9)
 
-		LDB_text = text
+		LDB_TEXT = color_text
 
-		DataObj.text = db.datafeed.show_coords and GetCoords() or text
+		DataObj.text = db.datafeed.show_coords and GetCoords() or LDB_TEXT
 		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), num)
 
 		if tooltip and tooltip:IsVisible() then
