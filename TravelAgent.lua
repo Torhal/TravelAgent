@@ -424,7 +424,6 @@ do
 				local hex2 = string.format("|cff%02x%02x%02x", r2 * 255, g2 * 255, b2 * 255)
 
 				local min, max = LT:GetLevel(zone)
-				local continent = LT:GetContinent(zone)
 				local level_str
 
 				if min == max then
@@ -435,7 +434,7 @@ do
 				line = tooltip:AddLine()
 				tooltip:SetCell(line, 1, string.format("%s%s|r", hex2, zone), "LEFT", 2)
 				tooltip:SetCell(line, 3, level_str)
-				tooltip:SetCell(line, 5, continent)
+				tooltip:SetCell(line, 5, LT:GetContinent(zone))
 			end
 			tooltip:AddLine(" ")
 		end
@@ -473,7 +472,18 @@ do
 
 			line, column = tooltip:AddLine()
 			tooltip:SetCell(line, column, _G.CONTINENT, "LEFT", 2)
-			tooltip:SetCell(line, 6, LT:GetContinent(current_zone))
+			tooltip:SetCell(line, 5, LT:GetContinent(current_zone))
+
+			local min, max = LT:GetLevel(current_zone)
+
+			if min > 0 and max > 0 then
+				local r, g, b = LT:GetLevelColor(current_zone)
+				local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
+
+				line = tooltip:AddLine()
+				tooltip:SetCell(line, 1, _G.LEVEL_RANGE, "LEFT", 2)
+				tooltip:SetCell(line, 3, string.format("%s%d - %d|r", hex, min, max))
+			end
 
 			local fish_lev = LT:GetFishingLevel(current_zone)
 
