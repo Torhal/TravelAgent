@@ -546,6 +546,15 @@ do
 	end
 end	-- do
 
+local CoordFeedData = {
+	type	= "data source",
+	icon	= "Interface\\Icons\\INV_Torch_Lit",
+	text	= "",
+	OnEnter	= LDB_OnEnter,
+	OnLeave	= LDB_OnLeave,
+	OnClick = LDB_OnClick,
+}
+
 function TravelAgent:OnEnable()
 	self:RegisterEvent("ZONE_CHANGED", self.Update)
 	self:RegisterEvent("ZONE_CHANGED_INDOORS", self.Update)
@@ -562,14 +571,7 @@ function TravelAgent:OnEnable()
 	})
 
 	if db.datafeed.show_coords then
-		CoordFeed = LDB:NewDataObject(ADDON_NAME.."Coordinates", {
-			type	= "data source",
-			icon	= "Interface\\Icons\\INV_Torch_Lit",
-			text	= "",
-			OnEnter	= LDB_OnEnter,
-			OnLeave	= LDB_OnLeave,
-			OnClick = LDB_OnClick,
-		})
+		CoordFeed = LDB:NewDataObject(ADDON_NAME.."Coordinates", CoordFeedData)
 	end
 
 	if LDBIcon then
@@ -659,6 +661,9 @@ local function GetOptions()
 									  db.datafeed.show_coords = value
 
 									  if db.datafeed.show_coords then
+										  if not CoordFeed then
+											  CoordFeed = LDB:NewDataObject(ADDON_NAME.."Coordinates", CoordFeedData)
+										  end
 										  CoordFeed.text = GetCoords()
 									  else
 										  TravelAgent:Update()
