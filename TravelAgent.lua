@@ -286,7 +286,7 @@ do
 		tooltip:SetCell(line, 6, coord_str)
 
 		if _G.TomTom and x and y then
-			tooltip:SetCellScript(line, 2, "OnMouseUp", InstanceOnMouseUp, instance)
+			tooltip:SetLineScript(line, "OnMouseUp", InstanceOnMouseUp, instance)
 		end
 	end
 	local ICON_PLUS = [[|TInterface\BUTTONS\UI-PlusButton-Up:20:20|t]]
@@ -359,7 +359,7 @@ do
 					tooltip:SetCell(line, 6, string.format("%.2f, %.2f", x or 0, y or 0))
 
 					if _G.TomTom and x and y then
-						tooltip:SetCellScript(line, 2, "OnMouseUp", InstanceOnMouseUp, instance)
+						tooltip:SetLineScript(line, "OnMouseUp", InstanceOnMouseUp, instance)
 					end
 				end
 				tooltip:AddLine(" ")
