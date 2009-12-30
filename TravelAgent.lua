@@ -23,6 +23,7 @@ local BZ		= LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L			= LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
 
 local DataObj
+local CoordFeed
 local tooltip
 
 -------------------------------------------------------------------------------
@@ -144,10 +145,9 @@ end
 
 local function GetCoords(to_chat)
 	local x, y = GetPlayerMapPosition("player")
-	x = x * 100
-	y = y * 100
+	local retstr = string.format(_G.PARENS_TEMPLATE, string.format("%.2f, %.2f", x * 100, y * 100))
 
-	return (to_chat and CHAT_TEXT or LDB_TEXT).." "..string.format(_G.PARENS_TEMPLATE, string.format("%.2f, %.2f", x, y))
+	return to_chat and (CHAT_TEXT.." "..retstr) or retstr
 end
 
 -----------------------------------------------------------------------
@@ -227,8 +227,8 @@ do
 						  end
 					  end
 
-					  if db.datafeed.show_coords then
-						  DataObj.text = GetCoords()
+					  if CoordFeed then
+						  CoordFeed.text = GetCoords()
 					  end
 					  last_update = 0
 				  end
@@ -560,6 +560,18 @@ function TravelAgent:OnEnable()
 		OnLeave	= LDB_OnLeave,
 		OnClick	= LDB_OnClick,
 	})
+
+	if db.datafeed.show_coords then
+		CoordFeed = LDB:NewDataObject(ADDON_NAME.."Coordinates", {
+			type	= "data source",
+			icon	= "Interface\\Icons\\INV_Torch_Lit",
+			text	= "",
+			OnEnter	= LDB_OnEnter,
+			OnLeave	= LDB_OnLeave,
+			OnClick = LDB_OnClick,
+		})
+	end
+
 	if LDBIcon then
 		LDBIcon:Register(ADDON_NAME, DataObj, db.datafeed.minimap_icon)
 	end
@@ -647,7 +659,7 @@ local function GetOptions()
 									  db.datafeed.show_coords = value
 
 									  if db.datafeed.show_coords then
-										  DataObj.text = GetCoords()
+										  CoordFeed.text = GetCoords()
 									  else
 										  TravelAgent:Update()
 									  end
