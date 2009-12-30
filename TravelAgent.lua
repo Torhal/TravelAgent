@@ -22,13 +22,7 @@ local LT		= LibStub("LibTourist-3.0")
 local BZ		= LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L			= LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
 
-local DataObj = LDB:NewDataObject(ADDON_NAME, {
-	type	= "data source",
-	label	= ADDON_NAME,
-	text	= " ",
-	icon	= "Interface\\Icons\\INV_Misc_Map_0" .. math.random(9),
-})
-
+local DataObj
 local tooltip
 
 -------------------------------------------------------------------------------
@@ -88,7 +82,6 @@ local defaults = {
 -- Variables.
 -------------------------------------------------------------------------------
 local db
-local LDB_TEXT		-- Cache for GetCoords()
 local CHAT_TEXT		-- Cache for inserting into ChatFrameEditBox
 
 -------------------------------------------------------------------------------
@@ -510,43 +503,13 @@ do
 		tooltip:Show()
 	end
 
-	function DataObj.OnEnter(display, motion)
-		DrawTooltip(display)
-	end
-
-	function DataObj.OnLeave()
-		updater.elapsed = 0
-	end
-
-	function DataObj.OnClick(display, button)
-		if button == "RightButton" then
-			local options_frame = InterfaceOptionsFrame
-
-			if options_frame:IsVisible() then
-				options_frame:Hide()
-			else
-				InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
-			end
-		elseif button == "LeftButton" then
-			if IsShiftKeyDown() then
-				ChatFrameEditBox:Show()
-				ChatFrameEditBox:Insert(GetCoords(true))
-			elseif IsControlKeyDown() and Atlas_Toggle then
-				Atlas_Toggle()
-			else
-				ToggleFrame(WorldMapFrame)
-			end
-		end
-	end
-
 	function TravelAgent:Update()
 		local _, _, _, text, color_text = GetZoneData(true)
 		local num = math.random(9)
 
-		LDB_TEXT = color_text
 		CHAT_TEXT = text
 
-		DataObj.text = db.datafeed.show_coords and GetCoords() or LDB_TEXT
+		DataObj.text = color_text
 		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), num)
 
 		if tooltip and tooltip:IsVisible() then
@@ -580,10 +543,6 @@ do
 		db = temp_db.global
 
 		self:SetupOptions()
-
-		if LDBIcon then
-			LDBIcon:Register(ADDON_NAME, DataObj, db.datafeed.minimap_icon)
-		end
 	end
 end	-- do
 
@@ -592,6 +551,18 @@ function TravelAgent:OnEnable()
 	self:RegisterEvent("ZONE_CHANGED_INDOORS", self.Update)
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.Update)
 
+	DataObj = LDB:NewDataObject(ADDON_NAME, {
+		type	= "data source",
+		label	= ADDON_NAME,
+		text	= " ",
+		icon	= "Interface\\Icons\\INV_Misc_Map_0" .. math.random(9),
+		OnEnter	= LDB_OnEnter,
+		OnLeave	= LDB_OnLeave,
+		OnClick	= LDB_OnClick,
+	})
+	if LDBIcon then
+		LDBIcon:Register(ADDON_NAME, DataObj, db.datafeed.minimap_icon)
+	end
 	self:Update()
 end
 
