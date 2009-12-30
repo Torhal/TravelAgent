@@ -158,10 +158,41 @@ local function GetCoords(to_chat)
 end
 
 -----------------------------------------------------------------------
--- Tooltip scripts.
+-- Tooltip and DataBroker methods.
 -----------------------------------------------------------------------
+local DrawTooltip		-- Upvalue needed for chicken-or-egg-syndrome.
+local updater
+
+local function LDB_OnClick(display, button)
+	if button == "RightButton" then
+		local options_frame = InterfaceOptionsFrame
+
+		if options_frame:IsVisible() then
+			options_frame:Hide()
+		else
+			InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
+		end
+	elseif button == "LeftButton" then
+		if IsShiftKeyDown() then
+			ChatFrameEditBox:Show()
+			ChatFrameEditBox:Insert(GetCoords(true))
+		elseif IsControlKeyDown() and Atlas_Toggle then
+			Atlas_Toggle()
+		else
+			ToggleFrame(WorldMapFrame)
+		end
+	end
+end
+
+local function LDB_OnEnter(display, motion)
+	DrawTooltip(display)
+end
+
+local function LDB_OnLeave()
+	updater.elapsed = 0
+end
+
 do
-	local DrawTooltip		-- Upvalue needed for chicken-or-egg-syndrome.
 	local coord_line		-- Assigned in DrawTooltip for use elsewhere.
 
 	local function SetCoordLine()
@@ -177,7 +208,8 @@ do
 	-----------------------------------------------------------------------
 	local LDB_anchor
 	local last_update = 0
-	local updater = CreateFrame("Frame", nil, UIParent)
+
+	updater = CreateFrame("Frame", nil, UIParent)
 
 	-- Handles tooltip hiding and the dynamic refresh of coordinates (both for the datafeed and if moving while the tooltip is open).
 	updater:SetScript("OnUpdate",
