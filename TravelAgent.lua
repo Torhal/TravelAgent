@@ -190,10 +190,8 @@ do
 
 	local function SetCoordLine()
 		local x, y = GetPlayerMapPosition("player")
-		x = x * 100
-		y = y * 100
 
-		tooltip:SetCell(coord_line, 6, string.format("%.2f, %.2f", x, y))
+		tooltip:SetCell(coord_line, 6, string.format("%.2f, %.2f", x * 100, y * 100))
 	end
 
 	-----------------------------------------------------------------------
@@ -390,7 +388,7 @@ do
 
 			for instance in LT:IterateRecommendedInstances() do
 				if LT:IsBattleground(instance) then
-					if not found_battleground  then
+					if not found_battleground then
 						_G.wipe(battlegrounds)
 						found_battleground = true
 					end
@@ -675,8 +673,6 @@ local function GetOptions()
 											  CoordFeed = LDB:NewDataObject(ADDON_NAME.."Coordinates", CoordFeedData)
 										  end
 										  CoordFeed.text = GetCoords()
-									  else
-										  TravelAgent:Update()
 									  end
 								  end,
 						},
