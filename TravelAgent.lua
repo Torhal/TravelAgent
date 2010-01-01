@@ -186,7 +186,9 @@ local function LDB_OnLeave()
 end
 
 do
-	local coord_line		-- Assigned in DrawTooltip for use elsewhere.
+	-- Assigned in DrawTooltip for use elsewhere.
+	local LDB_anchor
+	local coord_line
 
 	local function SetCoordLine()
 		local x, y = GetPlayerMapPosition("player")
@@ -194,11 +196,8 @@ do
 		tooltip:SetCell(coord_line, 6, string.format("%.2f, %.2f", x * 100, y * 100))
 	end
 
-	-----------------------------------------------------------------------
-	-- Update scripts.
-	-----------------------------------------------------------------------
-	local LDB_anchor
 	local last_update = 0
+	local prev_x, prev_y = 0, 0
 
 	updater = CreateFrame("Frame", nil, UIParent)
 
@@ -207,29 +206,39 @@ do
 			  function(self, elapsed)
 				  last_update = last_update + elapsed
 
-				  if last_update > 0.1 then
-					  if tooltip then
-						  if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
-							  if coord_line then
-								  SetCoordLine()
-							  end
-							  self.elapsed = 0
-						  else
-							  self.elapsed = self.elapsed + last_update
+				  if last_update < 0.1 then
+					  return
+				  end
 
-							  if self.elapsed >= db.tooltip.timer then
-								  tooltip = LQT:Release(tooltip)
-								  LDB_anchor = nil
-								  coord_line = nil
-							  end
+				  local update_coords = false
+				  local x, y = GetPlayerMapPosition("player")
+
+				  if prev_x ~= x or prev_y ~= y then
+					  prev_x, prev_y = x, y
+					  update_coords = true
+				  end
+
+				  if tooltip then
+					  if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
+						  if coord_line and update_coords then
+							  SetCoordLine()
+						  end
+						  self.elapsed = 0
+					  else
+						  self.elapsed = self.elapsed + last_update
+
+						  if self.elapsed >= db.tooltip.timer then
+							  tooltip = LQT:Release(tooltip)
+							  LDB_anchor = nil
+							  coord_line = nil
 						  end
 					  end
-
-					  if CoordFeed then
-						  CoordFeed.text = GetCoords()
-					  end
-					  last_update = 0
 				  end
+
+				  if CoordFeed and update_coords then
+					  CoordFeed.text = GetCoords()
+				  end
+				  last_update = 0
 			  end)
 
 	-----------------------------------------------------------------------
