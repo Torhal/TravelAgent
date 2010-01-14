@@ -345,29 +345,8 @@ do
 				tooltip:AddSeparator()
 
 				for instance in LT:IterateZoneInstances(current_zone) do
-					local r, g, b = LT:GetLevelColor(instance)
-					local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
-					local min, max = LT:GetLevel(instance)
-					local _, x, y = LT:GetEntrancePortalLocation(instance)
-					local group = LT:GetInstanceGroupSize(instance)
-					local level_str
-
-					if min == max then
-						level_str = string.format("%s%d|r", hex, min)
-					else
-						level_str = string.format("%s%d - %d|r", hex, min, max)
-					end
+					Tooltip_AddInstance(instance)
 					count = count + 1
-
-					line = tooltip:AddLine()
-					tooltip:SetCell(line, 1, instance, "LEFT", 2)
-					tooltip:SetCell(line, 3, level_str)
-					tooltip:SetCell(line, 4, group > 0 and string.format("%d", group) or "")
-					tooltip:SetCell(line, 6, string.format("%.2f, %.2f", x or 0, y or 0))
-
-					if _G.TomTom and x and y then
-						tooltip:SetLineScript(line, "OnMouseUp", InstanceOnMouseUp, instance)
-					end
 				end
 				tooltip:AddLine(" ")
 			end
