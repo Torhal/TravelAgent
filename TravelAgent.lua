@@ -289,7 +289,11 @@ do
 		tooltip:SetCell(line, 1, string.format("%s%s%s", complex and complex or "", colon, instance), "LEFT", 2)
 		tooltip:SetCell(line, 3, level_str)
 		tooltip:SetCell(line, 4, group > 0 and string.format("%d", group) or "")
-		tooltip:SetCell(line, 5, string.format("%s%s|r", hex2, location or _G.UNKNOWN))
+
+		if location ~= complex then
+			tooltip:SetCell(line, 5, string.format("%s%s|r", hex2, location or _G.UNKNOWN))
+		end
+
 		tooltip:SetCell(line, 6, coord_str)
 
 		if _G.TomTom and x and y then
