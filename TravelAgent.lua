@@ -357,7 +357,7 @@ do
 			tooltip:SetCell(header_line, 1, cur_instances and ICON_MINUS or ICON_PLUS)
 			tooltip:SetCell(header_line, 2, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "LEFT", 5)
 
-			tooltip:SetCellScript(header_line, 1, "OnMouseUp", SectionOnMouseUp, "cur_instances")
+			tooltip:SetLineScript(header_line, "OnMouseUp", SectionOnMouseUp, "cur_instances")
 		end
 
 		local found_battleground = false
@@ -369,7 +369,7 @@ do
 			tooltip:SetCell(line, 1, rec_instances and ICON_MINUS or ICON_PLUS)
 			tooltip:SetCell(line, 2, L["Recommended Instances"], "LEFT", 5)
 
-			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "rec_instances")
+			tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "rec_instances")
 
 			-- Unfortunately, two separate checks for rec_instances are needed for the separator and
 			-- the empty line below since rec_instances may be false but we need to gather battleground
@@ -401,7 +401,7 @@ do
 		tooltip:SetCell(line, 1, rec_zones and ICON_MINUS or ICON_PLUS)
 		tooltip:SetCell(line, 2, L["Recommended Zones"], "LEFT", 5)
 
-		tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "rec_zones")
+		tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "rec_zones")
 
 		if rec_zones then
 			tooltip:AddSeparator()
@@ -436,7 +436,7 @@ do
 			tooltip:SetCell(line, 1, bg_toggled and ICON_MINUS or ICON_PLUS)
 			tooltip:SetCell(line, 2, _G.BATTLEGROUNDS, "LEFT", 5)
 
-			tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "battlegrounds")
+			tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "battlegrounds")
 
 			if bg_toggled then
 				tooltip:AddSeparator()
@@ -455,7 +455,7 @@ do
 		tooltip:SetCell(line, 1, misc_toggled and ICON_MINUS or ICON_PLUS)
 		tooltip:SetCell(line, 2, _G.MISCELLANEOUS, "LEFT", 5)
 
-		tooltip:SetCellScript(line, 1, "OnMouseUp", SectionOnMouseUp, "miscellaneous")
+		tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "miscellaneous")
 
 		if misc_toggled then
 			tooltip:AddSeparator()
