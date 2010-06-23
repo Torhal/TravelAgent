@@ -29,6 +29,9 @@ local tooltip
 -------------------------------------------------------------------------------
 -- Constants
 -------------------------------------------------------------------------------
+-- 3.3.3 compatibility - remove when the EU servers are patched to 3.3.5.
+local BUILD_NUM = select(2, GetBuildInfo())
+
 local CONTINENT_DATA = {
 	[BZ["Kalimdor"]] = {
 		id = 1,
@@ -83,7 +86,7 @@ local defaults = {
 -- Variables.
 -------------------------------------------------------------------------------
 local db
-local CHAT_TEXT		-- Cache for inserting into ChatFrameEditBox
+local CHAT_TEXT		-- Cache for inserting into the ChatFrame's EditBox
 
 -------------------------------------------------------------------------------
 -- Helper functions
@@ -167,8 +170,16 @@ local function LDB_OnClick(display, button)
 		end
 	elseif button == "LeftButton" then
 		if IsShiftKeyDown() then
-			ChatFrameEditBox:Show()
-			ChatFrameEditBox:Insert(GetCoords(true))
+			-- 3.3.3 compatibility - remove when the EU servers are patched to 3.3.5.
+			if tonumber(BUILD_NUM) < 12213 then
+				ChatFrameEditBox:Show()
+				ChatFrameEditBox:Insert(GetCoords(true))
+			else
+				local edit_box = _G.ChatEdit_ChooseBoxForSend()
+
+				_G.ChatEdit_ActivateChat(edit_box)
+				edit_box:Insert(GetCoords(true))
+			end
 		elseif IsControlKeyDown() and Atlas_Toggle then
 			Atlas_Toggle()
 		else
