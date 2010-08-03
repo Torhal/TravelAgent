@@ -367,7 +367,7 @@ do
 				tooltip:AddLine(" ")
 			end
 			tooltip:SetCell(header_line, 1, cur_instances and ICON_MINUS or ICON_PLUS)
-			tooltip:SetCell(header_line, 2, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "LEFT", 5)
+			tooltip:SetCell(header_line, 2, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "LEFT")
 
 			tooltip:SetLineScript(header_line, "OnMouseUp", SectionOnMouseUp, "cur_instances")
 		end
@@ -379,7 +379,7 @@ do
 
 			line = tooltip:AddHeader()
 			tooltip:SetCell(line, 1, rec_instances and ICON_MINUS or ICON_PLUS)
-			tooltip:SetCell(line, 2, L["Recommended Instances"], "LEFT", 5)
+			tooltip:SetCell(line, 2, L["Recommended Instances"], "LEFT")
 
 			tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "rec_instances")
 
@@ -411,7 +411,7 @@ do
 
 		line = tooltip:AddHeader()
 		tooltip:SetCell(line, 1, rec_zones and ICON_MINUS or ICON_PLUS)
-		tooltip:SetCell(line, 2, L["Recommended Zones"], "LEFT", 5)
+		tooltip:SetCell(line, 2, L["Recommended Zones"], "LEFT")
 
 		tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "rec_zones")
 
@@ -446,7 +446,7 @@ do
 
 			line = tooltip:AddHeader()
 			tooltip:SetCell(line, 1, bg_toggled and ICON_MINUS or ICON_PLUS)
-			tooltip:SetCell(line, 2, _G.BATTLEGROUNDS, "LEFT", 5)
+			tooltip:SetCell(line, 2, _G.BATTLEGROUNDS, "LEFT")
 
 			tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "battlegrounds")
 
