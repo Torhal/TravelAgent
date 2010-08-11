@@ -170,16 +170,10 @@ local function LDB_OnClick(display, button)
 		end
 	elseif button == "LeftButton" then
 		if IsShiftKeyDown() then
-			-- 3.3.3 compatibility - remove when the EU servers are patched to 3.3.5.
-			if tonumber(BUILD_NUM) < 12213 then
-				ChatFrameEditBox:Show()
-				ChatFrameEditBox:Insert(GetCoords(true))
-			else
-				local edit_box = _G.ChatEdit_ChooseBoxForSend()
+			local edit_box = _G.ChatEdit_ChooseBoxForSend()
 
-				_G.ChatEdit_ActivateChat(edit_box)
-				edit_box:Insert(GetCoords(true))
-			end
+			_G.ChatEdit_ActivateChat(edit_box)
+			edit_box:Insert(GetCoords(true))
 		elseif IsControlKeyDown() and Atlas_Toggle then
 			Atlas_Toggle()
 		else
