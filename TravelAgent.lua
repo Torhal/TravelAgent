@@ -29,9 +29,6 @@ local tooltip
 -------------------------------------------------------------------------------
 -- Constants
 -------------------------------------------------------------------------------
--- 3.3.3 compatibility - remove when the EU servers are patched to 3.3.5.
-local BUILD_NUM = select(2, GetBuildInfo())
-
 local CONTINENT_DATA = {
 	[BZ["Kalimdor"]] = {
 		id = 1,
@@ -50,6 +47,11 @@ local CONTINENT_DATA = {
 	},
 	[BZ["Northrend"]] = {
 		id = 4,
+		zone_names = {},
+		zone_ids = {}
+	},
+	[BZ["The Maelstrom"]] = {
+		id = 5,
 		zone_names = {},
 		zone_ids = {}
 	},
