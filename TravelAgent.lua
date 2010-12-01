@@ -458,7 +458,7 @@ do
 
 		local misc_toggled = db.tooltip_sections.miscellaneous
 
-		line = tooltip:AddLine()
+		line = tooltip:AddHeader()
 
 		tooltip:SetCell(line, 1, misc_toggled and ICON_MINUS or ICON_PLUS)
 		tooltip:SetCell(line, 2, _G.MISCELLANEOUS, "LEFT", 5)
