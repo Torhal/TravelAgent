@@ -94,9 +94,9 @@ local CHAT_TEXT		-- Cache for inserting into the ChatFrame's EditBox
 -- Helper functions
 -------------------------------------------------------------------------------
 local function GetZoneData(datafeed)
-	local zone_status, subzone_ispvp, controlling_faction = GetZonePVPInfo()
-	local current_zone = GetRealZoneText()
-	local current_subzone = GetSubZoneText()
+	local zone_status, subzone_ispvp, controlling_faction = _G.GetZonePVPInfo()
+	local current_zone = _G.GetRealZoneText()
+	local current_subzone = _G.GetSubZoneText()
 
 	if current_subzone == "" or current_subzone == current_zone then
 		current_subzone = nil
@@ -112,10 +112,10 @@ local function GetZoneData(datafeed)
 		label = _G.FREE_FOR_ALL_TERRITORY
 		r, g, b = 1.0, 0.1, 0.1
 	elseif zone_status == "friendly" then
-		label = string.format(_G.FACTION_CONTROLLED_TERRITORY, controlling_faction)
+		label = _G.FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
 		r, g, b = 0.1, 1.0, 0.1
 	elseif zone_status == "hostile" then
-		label = string.format(_G.FACTION_CONTROLLED_TERRITORY, controlling_faction)
+		label = _G.FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
 		r, g, b = 1.0, 0.1, 0.1
 	elseif zone_status == "contested" then
 		label = _G.CONTESTED_TERRITORY
@@ -140,17 +140,17 @@ local function GetZoneData(datafeed)
 		zone_str = current_zone
 	end
 	local colon = (zone_str and subzone_str) and ": " or ""
-	local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
-	local text = string.format("%s%s%s", zone_str or "", colon, subzone_str or "")
-	local color_text = string.format("%s%s%s%s|r", hex, zone_str or "", colon, subzone_str or "")
-	label = string.format("%s%s|r", hex, label)
+	local hex = ("|cff%02x%02x%02x"):format(r * 255,g * 255,b * 255)
+	local text = ("%s%s%s"):format(zone_str or "",colon,subzone_str or "")
+	local color_text = ("%s%s%s%s|r"):format(hex,zone_str or "",colon,subzone_str or "")
+	label = ("%s%s|r"):format(hex,label)
 
 	return current_zone, current_subzone, label, text, color_text
 end
 
 local function GetCoords(to_chat)
-	local x, y = GetPlayerMapPosition("player")
-	local retstr = string.format(_G.PARENS_TEMPLATE, string.format("%.2f, %.2f", x * 100, y * 100))
+	local x, y = _G.GetPlayerMapPosition("player")
+	local retstr = _G.PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100,y * 100))
 
 	return to_chat and (CHAT_TEXT.." "..retstr) or retstr
 end
@@ -163,23 +163,23 @@ local updater
 
 local function LDB_OnClick(display, button)
 	if button == "RightButton" then
-		local options_frame = InterfaceOptionsFrame
+		local options_frame = _G.InterfaceOptionsFrame
 
 		if options_frame:IsVisible() then
 			options_frame:Hide()
 		else
-			InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
+			_G.InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
 		end
 	elseif button == "LeftButton" then
-		if IsShiftKeyDown() then
+		if _G.IsShiftKeyDown() then
 			local edit_box = _G.ChatEdit_ChooseBoxForSend()
 
 			_G.ChatEdit_ActivateChat(edit_box)
 			edit_box:Insert(GetCoords(true))
-		elseif IsControlKeyDown() and Atlas_Toggle then
-			Atlas_Toggle()
+		elseif _G.IsControlKeyDown() and _G.Atlas_Toggle then
+			_G.Atlas_Toggle()
 		else
-			ToggleFrame(WorldMapFrame)
+			_G.ToggleFrame(_G.WorldMapFrame)
 		end
 	end
 end
@@ -198,15 +198,15 @@ do
 	local coord_line
 
 	local function SetCoordLine()
-		local x, y = GetPlayerMapPosition("player")
+		local x, y = _G.GetPlayerMapPosition("player")
 
-		tooltip:SetCell(coord_line, 6, string.format("%.2f, %.2f", x * 100, y * 100))
+		tooltip:SetCell(coord_line, 6, ("%.2f, %.2f"):format(x * 100,y * 100))
 	end
 
 	local last_update = 0
 	local prev_x, prev_y = 0, 0
 
-	updater = CreateFrame("Frame", nil, UIParent)
+	updater = _G.CreateFrame("Frame", nil, _G.UIParent)
 
 	-- Handles tooltip hiding and the dynamic refresh of coordinates (both for the datafeed and if moving while the tooltip is open).
 	updater:SetScript("OnUpdate",
@@ -218,7 +218,7 @@ do
 				  end
 
 				  local update_coords = false
-				  local x, y = GetPlayerMapPosition("player")
+				  local x, y = _G.GetPlayerMapPosition("player")
 
 				  if prev_x ~= x or prev_y ~= y then
 					  prev_x, prev_y = x, y
@@ -264,17 +264,17 @@ do
 		local zone, x, y = LT:GetEntrancePortalLocation(instance)
 		local continent = CONTINENT_DATA[LT:GetContinent(zone)]
 
-		TomTom:AddZWaypoint(continent.id, continent.zone_ids[zone], x, y, string.format("%s (%s)", instance, zone), false, true, true, nil, true, true)
+		_G.TomTom:AddZWaypoint(continent.id, continent.zone_ids[zone], x, y, ("%s (%s)"):format(instance,zone), false, true, true, nil, true, true)
 	end
 
 	-- Gathers all data relevant to the given instance and adds it to the tooltip.
 	local function Tooltip_AddInstance(instance)
 		local r, g, b = LT:GetLevelColor(instance)
-		local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
+		local hex = ("|cff%02x%02x%02x"):format(r * 255,g * 255,b * 255)
 
 		local location = LT:GetInstanceZone(instance)
 		local r2, g2, b2 = LT:GetFactionColor(location)
-		local hex2 = string.format("|cff%02x%02x%02x", r2 * 255, g2 * 255, b2 * 255)
+		local hex2 = ("|cff%02x%02x%02x"):format(r2 * 255,g2 * 255,b2 * 255)
 
 		local min, max = LT:GetLevel(instance)
 		local _, x, y = LT:GetEntrancePortalLocation(instance)
@@ -283,22 +283,22 @@ do
 		local level_str
 
 		if min == max then
-			level_str = string.format("%s%d|r", hex, min)
+			level_str = ("%s%d|r"):format(hex,min)
 		else
-			level_str = string.format("%s%d - %d|r", hex, min, max)
+			level_str = ("%s%d - %d|r"):format(hex,min,max)
 		end
-		local coord_str = ((not x or not y) and "" or string.format("%.2f, %.2f", x, y))
+		local coord_str = ((not x or not y) and "" or ("%.2f, %.2f"):format(x,y))
 
 		local complex = LT:GetComplex(instance)
 		local colon = complex and ": " or ""
 		local line = tooltip:AddLine()
 
-		tooltip:SetCell(line, 1, string.format("%s%s%s", complex and complex or "", colon, instance), "LEFT", 2)
+		tooltip:SetCell(line, 1, ("%s%s%s"):format(complex and complex or "",colon,instance), "LEFT", 2)
 		tooltip:SetCell(line, 3, level_str)
-		tooltip:SetCell(line, 4, group > 0 and string.format("%d", group) or "")
+		tooltip:SetCell(line, 4, group > 0 and ("%d"):format(group) or "")
 
 		if location ~= complex then
-			tooltip:SetCell(line, 5, string.format("%s%s|r", hex2, location or _G.UNKNOWN))
+			tooltip:SetCell(line, 5, ("%s%s|r"):format(hex2,location or _G.UNKNOWN))
 		end
 
 		tooltip:SetCell(line, 6, coord_str)
@@ -323,7 +323,7 @@ do
 
 			if _G.TipTac and _G.TipTac.AddModifiedTip then
 				-- Pass true as second parameter because hooking OnHide causes C stack overflows
-				TipTac:AddModifiedTip(tooltip, true)
+				_G.TipTac:AddModifiedTip(tooltip, true)
 			end
 		end
 
@@ -416,21 +416,21 @@ do
 
 			for zone in LT:IterateRecommendedZones() do
 				local r1, g1, b1 = LT:GetLevelColor(zone)
-				local hex1 = string.format("|cff%02x%02x%02x", r1 * 255, g1 * 255, b1 * 255)
+				local hex1 = ("|cff%02x%02x%02x"):format(r1 * 255,g1 * 255,b1 * 255)
 
 				local r2, g2, b2 = LT:GetFactionColor(zone)
-				local hex2 = string.format("|cff%02x%02x%02x", r2 * 255, g2 * 255, b2 * 255)
+				local hex2 = ("|cff%02x%02x%02x"):format(r2 * 255,g2 * 255,b2 * 255)
 
 				local min, max = LT:GetLevel(zone)
 				local level_str
 
 				if min == max then
-					level_str = string.format("%s%d|r", hex1, min)
+					level_str = ("%s%d|r"):format(hex1,min)
 				else
-					level_str = string.format("%s%d - %d|r", hex1, min, max)
+					level_str = ("%s%d - %d|r"):format(hex1,min,max)
 				end
 				line = tooltip:AddLine()
-				tooltip:SetCell(line, 1, string.format("%s%s|r", hex2, zone), "LEFT", 2)
+				tooltip:SetCell(line, 1, ("%s%s|r"):format(hex2,zone), "LEFT", 2)
 				tooltip:SetCell(line, 3, level_str)
 				tooltip:SetCell(line, 5, LT:GetContinent(zone))
 			end
@@ -476,18 +476,18 @@ do
 
 			if min > 0 and max > 0 then
 				local r, g, b = LT:GetLevelColor(current_zone)
-				local hex = string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
+				local hex = ("|cff%02x%02x%02x"):format(r * 255,g * 255,b * 255)
 
 				line = tooltip:AddLine()
 				tooltip:SetCell(line, 1, _G.LEVEL_RANGE, "LEFT", 2)
-				tooltip:SetCell(line, 3, string.format("%s%d - %d|r", hex, min, max))
+				tooltip:SetCell(line, 3, ("%s%d - %d|r"):format(hex,min,max))
 			end
 
 			local fish_lev = LT:GetFishingLevel(current_zone)
 
 			if fish_lev then
 				line = tooltip:AddLine()
-				tooltip:SetCell(line, 1, string.format(_G.SPELL_FAILED_FISHING_TOO_LOW, fish_lev), "CENTER", 6)
+				tooltip:SetCell(line, 1, _G.SPELL_FAILED_FISHING_TOO_LOW:format(fish_lev), "CENTER", 6)
 			end
 			tooltip:AddLine(" ")
 		end
@@ -518,7 +518,7 @@ do
 		CHAT_TEXT = text
 
 		DataObj.text = color_text
-		DataObj.icon = string.format("Interface\\Icons\\INV_Misc_Map%s0%d", (num == 1 and "_" or ""), num)
+		DataObj.icon = ([[Interface\Icons\INV_Misc_Map%s0%d]]):format((num == 1 and "_" or "",num)
 
 		if tooltip and tooltip:IsVisible() then
 			DrawTooltip(LDB_anchor)
@@ -543,7 +543,7 @@ do
 	function TravelAgent:OnInitialize()
 		-- Initialize continent/zone data
 		for continent, data in pairs(CONTINENT_DATA) do
-			InitializeZoneData(data.zone_names, data.zone_ids, GetMapZones(data.id))
+			InitializeZoneData(data.zone_names, data.zone_ids, _G.GetMapZones(data.id))
 		end
 
 		-- Database voodoo.
@@ -556,7 +556,7 @@ end	-- do
 
 local CoordFeedData = {
 	type	= "data source",
-	icon	= "Interface\\Icons\\INV_Torch_Lit",
+	icon	= [[Interface\Icons\INV_Torch_Lit]],
 	text	= "",
 	OnEnter	= LDB_OnEnter,
 	OnLeave	= LDB_OnLeave,
@@ -572,7 +572,7 @@ function TravelAgent:OnEnable()
 		type	= "data source",
 		label	= ADDON_NAME,
 		text	= " ",
-		icon	= "Interface\\Icons\\INV_Misc_Map_0" .. math.random(9),
+		icon	= [[Interface\Icons\INV_Misc_Map_0]] .. math.random(9),
 		OnEnter	= LDB_OnEnter,
 		OnLeave	= LDB_OnLeave,
 		OnClick	= LDB_OnClick,
