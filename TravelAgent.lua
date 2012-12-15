@@ -198,6 +198,9 @@ do
     local coord_line
 
     local function SetCoordLine()
+        if not coord_line then
+            return
+        end
         local x, y = _G.GetPlayerMapPosition("player")
 
         tooltip:SetCell(coord_line, 6, ("%.2f, %.2f"):format(x * 100, y * 100))
