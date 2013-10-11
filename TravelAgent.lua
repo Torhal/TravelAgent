@@ -198,7 +198,7 @@ do
     local coord_line
 
     local function SetCoordLine()
-        if not coord_line then
+        if not coord_line or tooltip:GetLineCount() < 1 then
             return
         end
         local x, y = _G.GetPlayerMapPosition("player")
