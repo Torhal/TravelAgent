@@ -1,10 +1,10 @@
-## Interface: 50300
+## Interface: 50400
 ## Title: TravelAgent
 ## Notes: Gives detailed descriptions of particular localities, as zones or instances, and provides optional TomTom integration.
 ## Author: Torhal
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
-## X-Email: torhal-wow@googlegroups.com
+## X-Email: jcallahan@curse.com
 ## X-Category: Map & Minimap, Plugins: Data Broker
 ## OptionalDeps: Ace3, LibBabble-Zone-3.0, LibQTip-1.0, LibTourist-3.0, LibDBIcon-1.0, TomTom, TipTac, Atlas
 ## SavedVariables: TravelAgentDB
