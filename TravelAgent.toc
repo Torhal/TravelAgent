@@ -1,4 +1,4 @@
-## Interface: 50400
+## Interface: 60000
 ## Title: TravelAgent
 ## Notes: Gives detailed descriptions of particular localities, as zones or instances, and provides optional TomTom integration.
 ## Author: Torhal
