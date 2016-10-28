@@ -150,7 +150,7 @@ end
 
 local function GetCoords(to_chat)
     local x, y = _G.GetPlayerMapPosition("player")
-    local retstr = _G.PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100, y * 100))
+    local retstr = _G.PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x or 0 * 100, y or 0 * 100))
 
     return to_chat and (CHAT_TEXT .. " " .. retstr) or retstr
 end
@@ -201,9 +201,9 @@ do
         if not coord_line or tooltip:GetLineCount() < 1 then
             return
         end
-        local x, y = _G.GetPlayerMapPosition("player")
 
-        tooltip:SetCell(coord_line, 6, ("%.2f, %.2f"):format(x * 100, y * 100))
+        local x, y = _G.GetPlayerMapPosition("player")
+        tooltip:SetCell(coord_line, 6, ("%.2f, %.2f"):format(x or 0 * 100, y or 0 * 100))
     end
 
     local last_update = 0
@@ -222,6 +222,8 @@ do
 
             local update_coords = false
             local x, y = _G.GetPlayerMapPosition("player")
+            x = x or 0
+            y = y or 0
 
             if prev_x ~= x or prev_y ~= y then
                 prev_x, prev_y = x, y
