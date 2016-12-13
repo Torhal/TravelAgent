@@ -1,8 +1,6 @@
 -------------------------------------------------------------------------------
 -- Localized Lua globals.
 -------------------------------------------------------------------------------
-local _G = getfenv(0)
-
 local string = _G.string
 local math = _G.math
 local pairs = _G.pairs
@@ -118,6 +116,7 @@ local function GetZoneData(datafeed)
 	if current_subzone == "" or current_subzone == current_zone then
 		current_subzone = nil
 	end
+
 	local zone_str, subzone_str
 	local label
 	local r, g, b = 1.0, 1.0, 1.0
@@ -156,10 +155,12 @@ local function GetZoneData(datafeed)
 	if not zone_str and not subzone_str then
 		zone_str = current_zone
 	end
+
 	local colon = (zone_str and subzone_str) and ": " or ""
 	local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 	local text = ("%s%s%s"):format(zone_str or "", colon, subzone_str or "")
 	local color_text = ("%s%s%s%s|r"):format(hex, zone_str or "", colon, subzone_str or "")
+
 	label = ("%s%s|r"):format(hex, label)
 
 	return current_zone, current_subzone, label, text, color_text
@@ -231,46 +232,46 @@ do
 	updater = _G.CreateFrame("Frame", nil, _G.UIParent)
 
 	-- Handles tooltip hiding and the dynamic refresh of coordinates (both for the datafeed and if moving while the tooltip is open).
-	updater:SetScript("OnUpdate",
-		function(self, elapsed)
-			last_update = last_update + elapsed
+	updater:SetScript("OnUpdate", function(self, elapsed)
+		last_update = last_update + elapsed
 
-			if last_update < 0.1 then
-				return
-			end
+		if last_update < 0.1 then
+			return
+		end
 
-			local update_coords = false
-			local x, y = HereBeDragons:GetPlayerZonePosition()
-			x = x or 0
-			y = y or 0
+		local update_coords = false
+		local x, y = HereBeDragons:GetPlayerZonePosition()
+		x = x or 0
+		y = y or 0
 
-			if prev_x ~= x or prev_y ~= y then
-				prev_x, prev_y = x, y
-				update_coords = true
-			end
+		if prev_x ~= x or prev_y ~= y then
+			prev_x, prev_y = x, y
+			update_coords = true
+		end
 
-			if tooltip then
-				if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
-					if coord_line and update_coords then
-						SetCoordLine()
-					end
-					self.elapsed = 0
-				else
-					self.elapsed = self.elapsed + last_update
+		if tooltip then
+			if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
+				if coord_line and update_coords then
+					SetCoordLine()
+				end
+				self.elapsed = 0
+			else
+				self.elapsed = self.elapsed + last_update
 
-					if self.elapsed >= db.tooltip.timer then
-						tooltip = LQT:Release(tooltip)
-						LDB_anchor = nil
-						coord_line = nil
-					end
+				if self.elapsed >= db.tooltip.timer then
+					tooltip = LQT:Release(tooltip)
+					LDB_anchor = nil
+					coord_line = nil
 				end
 			end
+		end
 
-			if CoordFeed and update_coords then
-				CoordFeed.text = GetCoords()
-			end
-			last_update = 0
-		end)
+		if CoordFeed and update_coords then
+			CoordFeed.text = GetCoords()
+		end
+
+		last_update = 0
+	end)
 
 	-----------------------------------------------------------------------
 	-- DataObj and Tooltip methods.
@@ -281,14 +282,14 @@ do
 		DrawTooltip(LDB_anchor)
 	end
 
-	local function InstanceOnMouseUp(cell, instance)
-		if not instance then
+	local function InstanceOnMouseUp(cell, instanceName)
+		if not instanceName then
 			return
 		end
-		local zone, x, y = LT:GetEntrancePortalLocation(instance)
-		local continent = CONTINENT_DATA[LT:GetContinent(zone)]
+		local zoneName, x, y = LT:GetEntrancePortalLocation(instanceName)
+		local continentData = CONTINENT_DATA[LT:GetContinent(zoneName)]
 
-		_G.TomTom:AddZWaypoint(continent.id, continent.zone_ids[zone], x, y, ("%s (%s)"):format(instance, zone), false, true, true, nil, true, true)
+		_G.TomTom:AddZWaypoint(continentData.id, continentData.zone_ids[zoneName], x, y, ("%s (%s)"):format(instanceName, zoneName), false, true, true, nil, true, true)
 	end
 
 	-- Gathers all data relevant to the given instance and adds it to the tooltip.
