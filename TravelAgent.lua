@@ -57,6 +57,21 @@ local CONTINENT_DATA = {
 		zone_names = {},
 		zone_ids = {}
 	},
+	[Z["Pandaria"]] = {
+		id = 6,
+		zone_names = {},
+		zone_ids = {}
+	},
+	[Z["Draenor"]] = {
+		id = 7,
+		zone_names = {},
+		zone_ids = {}
+	},
+	[Z["Broken Isles"]] = {
+		id = 8,
+		zone_names = {},
+		zone_ids = {}
+	}
 }
 
 local defaults = {
