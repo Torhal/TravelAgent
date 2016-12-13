@@ -19,8 +19,8 @@ local LQT = LibStub("LibQTip-1.0")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
 local LT = LibStub("LibTourist-3.0")
-local BZ = LibStub("LibBabble-Zone-3.0"):GetLookupTable()
 local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
+local Z = LT:GetLookupTable()
 
 local DataObj
 local CoordFeed
@@ -30,27 +30,27 @@ local tooltip
 -- Constants
 -------------------------------------------------------------------------------
 local CONTINENT_DATA = {
-	[BZ["Kalimdor"]] = {
+	[Z["Kalimdor"]] = {
 		id = 1,
 		zone_names = {},
 		zone_ids = {}
 	},
-	[BZ["Eastern Kingdoms"]] = {
+	[Z["Eastern Kingdoms"]] = {
 		id = 2,
 		zone_names = {},
 		zone_ids = {}
 	},
-	[BZ["Outland"]] = {
+	[Z["Outland"]] = {
 		id = 3,
 		zone_names = {},
 		zone_ids = {}
 	},
-	[BZ["Northrend"]] = {
+	[Z["Northrend"]] = {
 		id = 4,
 		zone_names = {},
 		zone_ids = {}
 	},
-	[BZ["The Maelstrom"]] = {
+	[Z["The Maelstrom"]] = {
 		id = 5,
 		zone_names = {},
 		zone_ids = {}
