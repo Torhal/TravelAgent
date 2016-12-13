@@ -42,3 +42,5 @@ externals:
       tag: v1.1.4
     Libs/LibDBIcon-1.0:
       url: svn://svn.wowace.com/wow/libdbicon-1-0/mainline/trunk/LibDBIcon-1.0
+    Libs/HereBeDragons-1.0:
+      url: git://git.wowace.com/wow/herebedragons/mainline.git

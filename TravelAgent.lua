@@ -19,6 +19,8 @@ local LQT = LibStub("LibQTip-1.0")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
 local LT = LibStub("LibTourist-3.0")
+local HereBeDragons = LibStub("HereBeDragons-1.0")
+
 local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
 local Z = LT:GetLookupTable()
 
@@ -149,8 +151,8 @@ local function GetZoneData(datafeed)
 end
 
 local function GetCoords(to_chat)
-	local x, y = _G.GetPlayerMapPosition("player")
 	local retstr = _G.PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x or 0 * 100, y or 0 * 100))
+	local x, y = HereBeDragons:GetPlayerZonePosition()
 
 	return to_chat and (CHAT_TEXT .. " " .. retstr) or retstr
 end
@@ -221,7 +223,7 @@ do
 			end
 
 			local update_coords = false
-			local x, y = _G.GetPlayerMapPosition("player")
+			local x, y = HereBeDragons:GetPlayerZonePosition()
 			x = x or 0
 			y = y or 0
 
