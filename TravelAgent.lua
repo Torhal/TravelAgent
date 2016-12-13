@@ -166,8 +166,11 @@ local function GetZoneData(datafeed)
 end
 
 local function GetCoords(to_chat)
-	local retstr = _G.PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x or 0 * 100, y or 0 * 100))
 	local x, y = HereBeDragons:GetPlayerZonePosition()
+	x = x or 0
+	y = y or 0
+
+	local retstr = _G.PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100, y * 100))
 
 	return to_chat and (CHAT_TEXT .. " " .. retstr) or retstr
 end
@@ -219,8 +222,7 @@ do
 			return
 		end
 
-		local x, y = _G.GetPlayerMapPosition("player")
-		tooltip:SetCell(coord_line, 6, ("%.2f, %.2f"):format(x or 0 * 100, y or 0 * 100))
+		tooltip:SetCell(coord_line, 6, GetCoords())
 	end
 
 	local last_update = 0
