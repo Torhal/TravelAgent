@@ -353,7 +353,7 @@ do
 			end
 		end
 
-		local current_zone, current_subzone, pvp_label, _, zone_text = GetZoneData(false)
+		local current_zone, _, pvp_label, _, zone_text = GetZoneData(false)
 
 		tooltip:Clear()
 		tooltip:SmartAnchorTo(anchor)
@@ -509,11 +509,11 @@ do
 				tooltip:SetCell(line, 3, ("%s%d - %d|r"):format(hex, min, max))
 			end
 
-			local fish_lev = LT:GetFishingLevel(current_zone)
+			local fishingLevel = LT:GetFishingSkillInfo(current_zone).maxLevel
 
-			if fish_lev then
+			if fishingLevel then
 				line = tooltip:AddLine()
-				tooltip:SetCell(line, 1, _G.SPELL_FAILED_FISHING_TOO_LOW:format(fish_lev), "CENTER", 6)
+				tooltip:SetCell(line, 1, _G.SPELL_FAILED_FISHING_TOO_LOW:format(fishingLevel), "CENTER", 6)
 			end
 			tooltip:AddLine(" ")
 		end
@@ -569,7 +569,7 @@ do
 	function TravelAgent:OnInitialize()
 		-- Initialize continent/zone data
 		for continent, data in pairs(CONTINENT_DATA) do
-			InitializeZoneData(data.zone_names, data.zone_ids, _G.GetMapZones(data.id))
+			InitializeZoneData(data.zone_names, data.zone_ids, _G.C_Map.GetMapChildrenInfo(data.id))
 		end
 
 		-- Database voodoo.
