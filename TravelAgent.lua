@@ -17,7 +17,7 @@ local LQT = LibStub("LibQTip-1.0")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
 local LT = LibStub("LibTourist-3.0")
-local HereBeDragons = LibStub("HereBeDragons-1.0")
+local HereBeDragons = LibStub("HereBeDragons-2.0")
 
 local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
 local Z = LT:GetLookupTable()
