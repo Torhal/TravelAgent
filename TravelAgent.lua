@@ -1,16 +1,15 @@
 -------------------------------------------------------------------------------
 -- Localized Lua globals.
 -------------------------------------------------------------------------------
-local string = _G.string
-local math = _G.math
-local pairs = _G.pairs
-local select = _G.select
+local math = math
+local pairs = pairs
+local select = select
 
 -------------------------------------------------------------------------------
 -- Addon namespace.
 -------------------------------------------------------------------------------
 local ADDON_NAME = ...
-local LibStub = _G.LibStub
+
 local TravelAgent = LibStub("AceAddon-3.0"):NewAddon(ADDON_NAME, "AceEvent-3.0")
 
 local LQT = LibStub("LibQTip-1.0")
@@ -109,9 +108,9 @@ local CHAT_TEXT -- Cache for inserting into the ChatFrame's EditBox
 -- Helper functions
 -------------------------------------------------------------------------------
 local function GetZoneData(datafeed)
-    local zone_status, subzone_ispvp, controlling_faction = _G.GetZonePVPInfo()
-    local current_zone = _G.GetRealZoneText()
-    local current_subzone = _G.GetSubZoneText()
+    local zone_status, subzone_ispvp, controlling_faction = GetZonePVPInfo()
+    local current_zone = GetRealZoneText()
+    local current_subzone = GetSubZoneText()
 
     if current_subzone == "" or current_subzone == current_zone then
         current_subzone = nil
@@ -122,25 +121,25 @@ local function GetZoneData(datafeed)
     local r, g, b = 1.0, 1.0, 1.0
 
     if zone_status == "sanctuary" then
-        label = _G.SANCTUARY_TERRITORY
+        label = SANCTUARY_TERRITORY
         r, g, b = 0.41, 0.8, 0.94
     elseif zone_status == "arena" then
-        label = _G.FREE_FOR_ALL_TERRITORY
+        label = FREE_FOR_ALL_TERRITORY
         r, g, b = 1.0, 0.1, 0.1
     elseif zone_status == "friendly" then
-        label = _G.FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
+        label = FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
         r, g, b = 0.1, 1.0, 0.1
     elseif zone_status == "hostile" then
-        label = _G.FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
+        label = FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
         r, g, b = 1.0, 0.1, 0.1
     elseif zone_status == "contested" then
-        label = _G.CONTESTED_TERRITORY
+        label = CONTESTED_TERRITORY
         r, g, b = 1.0, 0.7, 0
     elseif zone_status == "combat" then
-        label = _G.COMBAT_ZONE
+        label = COMBAT_ZONE
         r, g, b = 1.0, 0.1, 0.1
     else
-        label = _G.CONTESTED_TERRITORY
+        label = CONTESTED_TERRITORY
         r, g, b = 1.0, 0.9294, 0.7607
     end
 
@@ -171,7 +170,7 @@ local function GetCoords(to_chat)
     x = x or 0
     y = y or 0
 
-    local retstr = _G.PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100, y * 100))
+    local retstr = PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100, y * 100))
 
     return to_chat and (CHAT_TEXT .. " " .. retstr) or retstr
 end
@@ -192,15 +191,15 @@ local function LDB_OnClick(display, button)
             Settings.OpenToCategory(TravelAgent.options_frame)
         end
     elseif button == "LeftButton" then
-        if _G.IsShiftKeyDown() then
-            local edit_box = _G.ChatEdit_ChooseBoxForSend()
+        if IsShiftKeyDown() then
+            local edit_box = ChatEdit_ChooseBoxForSend()
 
-            _G.ChatEdit_ActivateChat(edit_box)
+            ChatEdit_ActivateChat(edit_box)
             edit_box:Insert(GetCoords(true))
-        elseif _G.IsControlKeyDown() and _G.Atlas_Toggle then
-            _G.Atlas_Toggle()
+        elseif IsControlKeyDown() and Atlas_Toggle then
+            Atlas_Toggle()
         else
-            _G.ToggleFrame(_G.WorldMapFrame)
+            ToggleFrame(WorldMapFrame)
         end
     end
 end
@@ -229,7 +228,7 @@ do
     local last_update = 0
     local prev_x, prev_y = 0, 0
 
-    updater = _G.CreateFrame("Frame", nil, _G.UIParent)
+    updater = CreateFrame("Frame", nil, UIParent)
 
     -- Handles tooltip hiding and the dynamic refresh of coordinates (both for the datafeed and if moving while the tooltip is open).
     updater:SetScript("OnUpdate", function(self, elapsed)
@@ -289,7 +288,7 @@ do
         local zoneName, x, y = LT:GetEntrancePortalLocation(instanceName)
         local continentData = CONTINENT_DATA[LT:GetContinent(zoneName)]
 
-        _G.TomTom:AddZWaypoint(continentData.id, continentData.zone_ids[zoneName], x, y, ("%s (%s)"):format(instanceName, zoneName), false, true, true, nil, true, true)
+        TomTom:AddZWaypoint(continentData.id, continentData.zone_ids[zoneName], x, y, ("%s (%s)"):format(instanceName, zoneName), false, true, true, nil, true, true)
     end
 
     -- Gathers all data relevant to the given instance and adds it to the tooltip.
@@ -323,12 +322,12 @@ do
         tooltip:SetCell(line, 4, group > 0 and ("%d"):format(group) or "")
 
         if location ~= complex then
-            tooltip:SetCell(line, 5, ("%s%s|r"):format(hex2, location or _G.UNKNOWN))
+            tooltip:SetCell(line, 5, ("%s%s|r"):format(hex2, location or UNKNOWN))
         end
 
         tooltip:SetCell(line, 6, coord_str)
 
-        if _G.TomTom and x and y then
+        if TomTom and x and y then
             tooltip:SetLineScript(line, "OnMouseUp", InstanceOnMouseUp, instance)
         end
     end
@@ -365,7 +364,7 @@ do
         line, column = tooltip:AddLine()
         coord_line = line
 
-        tooltip:SetCell(line, column, _G.LOCATION_COLON, "LEFT", 2)
+        tooltip:SetCell(line, column, LOCATION_COLON, "LEFT", 2)
         SetCoordLine()
 
         tooltip:AddLine(" ")
@@ -385,7 +384,7 @@ do
                 tooltip:AddLine(" ")
             end
             tooltip:SetCell(header_line, 1, cur_instances and ICON_MINUS or ICON_PLUS)
-            tooltip:SetCell(header_line, 2, (count > 1 and _G.MULTIPLE_DUNGEONS or _G.LFG_TYPE_DUNGEON), "LEFT")
+            tooltip:SetCell(header_line, 2, (count > 1 and MULTIPLE_DUNGEONS or LFG_TYPE_DUNGEON), "LEFT")
 
             tooltip:SetLineScript(header_line, "OnMouseUp", SectionOnMouseUp, "cur_instances")
         end
@@ -411,7 +410,7 @@ do
             for instance in LT:IterateRecommendedInstances() do
                 if LT:IsBattleground(instance) then
                     if not found_battleground then
-                        _G.wipe(battlegrounds)
+                        wipe(battlegrounds)
                         found_battleground = true
                     end
                     battlegrounds[instance] = true
@@ -464,7 +463,7 @@ do
 
             line = tooltip:AddHeader()
             tooltip:SetCell(line, 1, bg_toggled and ICON_MINUS or ICON_PLUS)
-            tooltip:SetCell(line, 2, _G.BATTLEGROUNDS, "LEFT")
+            tooltip:SetCell(line, 2, BATTLEGROUNDS, "LEFT")
 
             tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "battlegrounds")
 
@@ -483,7 +482,7 @@ do
         line = tooltip:AddHeader()
 
         tooltip:SetCell(line, 1, misc_toggled and ICON_MINUS or ICON_PLUS)
-        tooltip:SetCell(line, 2, _G.MISCELLANEOUS, "LEFT", 5)
+        tooltip:SetCell(line, 2, MISCELLANEOUS, "LEFT", 5)
 
         tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "miscellaneous")
 
@@ -491,7 +490,7 @@ do
             tooltip:AddSeparator()
 
             line, column = tooltip:AddLine()
-            tooltip:SetCell(line, column, _G.CONTINENT, "LEFT", 2)
+            tooltip:SetCell(line, column, CONTINENT, "LEFT", 2)
             tooltip:SetCell(line, 5, LT:GetContinent(current_zone))
 
             local min, max = LT:GetLevel(current_zone)
@@ -501,7 +500,7 @@ do
                 local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 
                 line = tooltip:AddLine()
-                tooltip:SetCell(line, 1, _G.LEVEL_RANGE, "LEFT", 2)
+                tooltip:SetCell(line, 1, LEVEL_RANGE, "LEFT", 2)
                 tooltip:SetCell(line, 3, ("%s%d - %d|r"):format(hex, min, max))
             end
 
@@ -509,7 +508,7 @@ do
 
             if fishingLevel then
                 line = tooltip:AddLine()
-                tooltip:SetCell(line, 1, _G.SPELL_FAILED_FISHING_TOO_LOW:format(fishingLevel), "CENTER", 6)
+                tooltip:SetCell(line, 1, SPELL_FAILED_FISHING_TOO_LOW:format(fishingLevel), "CENTER", 6)
             end
             tooltip:AddLine(" ")
         end
@@ -565,7 +564,7 @@ do
     function TravelAgent:OnInitialize()
         -- Initialize continent/zone data
         for continent, data in pairs(CONTINENT_DATA) do
-            InitializeZoneData(data.zone_names, data.zone_ids, _G.C_Map.GetMapChildrenInfo(data.id))
+            InitializeZoneData(data.zone_names, data.zone_ids, C_Map.GetMapChildrenInfo(data.id))
         end
 
         -- Database voodoo.
