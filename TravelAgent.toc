@@ -8,8 +8,8 @@
 ## X-Date: @project-date-iso@
 ## X-Email: jcallahan@curse.com
 ## X-Category: Map & Minimap, Plugins: Data Broker
-## X-Curse-Project-ID: 79480
-## X-WoWI-ID: 22846
+## X-Curse-Project-ID: 21612
+## X-WoWI-ID: 15408
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: Delayed
