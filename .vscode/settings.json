@@ -1,0 +1,33 @@
+{
+    "Lua.diagnostics.globals": [
+        "SettingsPanel",
+        "SettingsTooltip",
+        "ALT_KEY",
+        "CTRL_KEY",
+        "SHIFT_KEY",
+        "NONE_KEY",
+        "VIDEO_OPTIONS_NEED_CLIENTRESTART",
+        "NORMAL_FONT_COLOR",
+        "GREEN_FONT_COLOR",
+        "VIDEO_OPTIONS_RECOMMENDED",
+        "WARNING_FONT_COLOR",
+        "DISABLED_FONT_COLOR",
+        "HIGHLIGHT_FONT_COLOR",
+        "SANCTUARY_TERRITORY",
+        "FREE_FOR_ALL_TERRITORY",
+        "CONTESTED_TERRITORY",
+        "COMBAT_ZONE",
+        "LOCATION_COLON",
+        "MISCELLANEOUS",
+        "PARENS_TEMPLATE",
+        "BATTLEGROUNDS",
+        "CONTINENT",
+        "FACTION_CONTROLLED_TERRITORY",
+        "WorldMapFrame",
+        "LFG_TYPE_DUNGEON",
+        "LEVEL_RANGE",
+        "UNKNOWN",
+        "MULTIPLE_DUNGEONS",
+        "SPELL_FAILED_FISHING_TOO_LOW"
+    ]
+}
