@@ -184,12 +184,12 @@ local updater
 
 local function LDB_OnClick(display, button)
 	if button == "RightButton" then
-		local options_frame = _G.InterfaceOptionsFrame
+		local settingsPanel = SettingsPanel
 
-		if options_frame:IsVisible() then
-			options_frame:Hide()
+		if settingsPanel:IsVisible() then
+			settingsPanel:Hide()
 		else
-			_G.InterfaceOptionsFrame_OpenToCategory(TravelAgent.options_frame)
+			Settings.OpenToCategory(TravelAgent.options_frame)
 		end
 	elseif button == "LeftButton" then
 		if _G.IsShiftKeyDown() then
