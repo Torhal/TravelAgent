@@ -4,39 +4,31 @@ license-output: LICENSE.txt
 
 enable-nolib-creation: no
 
-optional-dependencies:
-    - tomtom
-
-ignore:
-    - Locale/devel-enUS.lua
-
 externals:
     Libs/LibStub:
-        url: svn://svn.wowace.com/wow/libstub/mainline/trunk
-        tag: latest
+        url: https://repos.curseforge.com/wow/libstub/trunk
     Libs/CallbackHandler-1.0:
-        url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
-        tag: latest
-    Libs/AceLocale-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceLocale-3.0
-    Libs/AceConfig-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
-    Libs/AceEvent-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceEvent-3.0
-    Libs/AceDB-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
-    Libs/AceGUI-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
+        url: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
     Libs/AceAddon-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
-    Libs/LibTourist-3.0:
-        url: svn://svn.wowace.com/wow/libtourist-3-0/mainline/trunk
-    Libs/LibQTip-1.0:
-        url: https://github.com/Torhal/LibQTip-1.0.git
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceAddon-3.0
+    Libs/AceConfig-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceConfig-3.0
+    Libs/AceDB-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceDB-3.0
+    Libs/AceEvent-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceEvent-3.0
+    Libs/AceGUI-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceGUI-3.0
+    Libs/AceLocale-3.0:
+        url: https://repos.curseforge.com/wow/ace3/trunk/AceLocale-3.0
+    Libs/HereBeDragons:
+        url: https://repos.curseforge.com/wow/herebedragons
     Libs/LibDataBroker-1.1:
-        url: git://git.wowace.com/wow/libdatabroker-1-1/mainline.git
+        url: https://repos.curseforge.com/wow/libdatabroker-1-1
         tag: v1.1.4
     Libs/LibDBIcon-1.0:
-        url: svn://svn.wowace.com/wow/libdbicon-1-0/mainline/trunk/LibDBIcon-1.0
-    Libs/HereBeDragons:
-        url: https://repos.wowace.com/wow/herebedragons
+        url: https://repos.curseforge.com/wow/libdbicon-1-0/trunk
+    Libs/LibQTip-1.0:
+        url: https://repos.curseforge.com/wow/libqtip-1-0
+    Libs/LibTourist-3.0:
+        url: https://repos.curseforge.com/wow/libtourist-3-0/trunk
