@@ -12,14 +12,14 @@ local ADDON_NAME = ...
 
 local TravelAgent = LibStub("AceAddon-3.0"):NewAddon(ADDON_NAME, "AceEvent-3.0")
 
-local LQT = LibStub("LibQTip-2.0")
-local LDB = LibStub("LibDataBroker-1.1")
-local LDBIcon = LibStub("LibDBIcon-1.0")
-local LT = LibStub("LibTourist-3.0")
+local QTip = LibStub("LibQTip-2.0")
+local DataBroker = LibStub("LibDataBroker-1.1")
+local DBIcon = LibStub("LibDBIcon-1.0")
+local Tourist = LibStub("LibTourist-3.0")
 local HereBeDragons = LibStub("HereBeDragons-2.0")
 
 local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
-local Z = LT:GetLookupTable()
+local Z = Tourist:GetLookupTable()
 
 local DataObj
 local CoordFeed
@@ -240,7 +240,7 @@ do
                 self.elapsed = self.elapsed + last_update
 
                 if self.elapsed >= db.tooltip.timer then
-                    tooltip = LQT:Release(tooltip)
+                    tooltip = QTip:Release(tooltip)
                     LDB_anchor = nil
                     coord_line = nil
                 end
@@ -267,8 +267,8 @@ do
         if not instanceName then
             return
         end
-        local zoneName, x, y = LT:GetEntrancePortalLocation(instanceName) or UNKNOWN, 0, 0
-        local continentData = CONTINENT_DATA[LT:GetContinent()]
+        local zoneName, x, y = Tourist:GetEntrancePortalLocation(instanceName) or UNKNOWN, 0, 0
+        local continentData = CONTINENT_DATA[Tourist:GetContinent()]
 
         _G.CONTINENT_DATA = CONTINENT_DATA
         _G.continentData = continentData
@@ -284,16 +284,16 @@ do
 
     -- Gathers all data relevant to the given instance and adds it to the tooltip.
     local function Tooltip_AddInstance(instance)
-        local r, g, b = LT:GetLevelColor(instance)
+        local r, g, b = Tourist:GetLevelColor(instance)
         local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 
-        local location = LT:GetInstanceZone(instance)
-        local r2, g2, b2 = LT:GetFactionColor(location)
+        local location = Tourist:GetInstanceZone(instance)
+        local r2, g2, b2 = Tourist:GetFactionColor(location)
         local hex2 = ("|cff%02x%02x%02x"):format(r2 * 255, g2 * 255, b2 * 255)
 
-        local min, max = LT:GetLevel(instance)
-        local _, x, y = LT:GetEntrancePortalLocation(instance)
-        local group = LT:GetInstanceGroupSize(instance)
+        local min, max = Tourist:GetLevel(instance)
+        local _, x, y = Tourist:GetEntrancePortalLocation(instance)
+        local group = Tourist:GetInstanceGroupSize(instance)
 
         local level_str
 
@@ -304,7 +304,7 @@ do
         end
         local coord_str = ((not x or not y) and "" or ("%.2f, %.2f"):format(x, y))
 
-        local complex = LT:GetComplex(instance)
+        local complex = Tourist:GetComplex(instance)
         local colon = complex and ": " or ""
         local line = tooltip:AddLine()
 
@@ -359,7 +359,7 @@ do
 
         tooltip:AddLine(" ")
 
-        if LT:DoesZoneHaveInstances(current_zone) then
+        if Tourist:DoesZoneHaveInstances(current_zone) then
             local cur_instances = db.tooltip_sections.cur_instances
             local header_line = tooltip:AddHeader()
             local count = 0
@@ -367,7 +367,7 @@ do
             if cur_instances then
                 tooltip:AddSeparator()
 
-                for instance in LT:IterateZoneInstances(current_zone) do
+                for instance in Tourist:IterateZoneInstances(current_zone) do
                     Tooltip_AddInstance(instance)
                     count = count + 1
                 end
@@ -381,7 +381,7 @@ do
 
         local found_battleground = false
 
-        if LT:HasRecommendedInstances() then
+        if Tourist:HasRecommendedInstances() then
             local rec_instances = db.tooltip_sections.rec_instances
 
             line = tooltip:AddHeader()
@@ -397,8 +397,8 @@ do
                 tooltip:AddSeparator()
             end
 
-            for instance in LT:IterateRecommendedInstances() do
-                if LT:IsBattleground(instance) then
+            for instance in Tourist:IterateRecommendedInstances() do
+                if Tourist:IsBattleground(instance) then
                     if not found_battleground then
                         wipe(battlegrounds)
                         found_battleground = true
@@ -425,14 +425,14 @@ do
         if rec_zones then
             tooltip:AddSeparator()
 
-            for zone in LT:IterateRecommendedZones() do
-                local r1, g1, b1 = LT:GetLevelColor(zone)
+            for zone in Tourist:IterateRecommendedZones() do
+                local r1, g1, b1 = Tourist:GetLevelColor(zone)
                 local hex1 = ("|cff%02x%02x%02x"):format(r1 * 255, g1 * 255, b1 * 255)
 
-                local r2, g2, b2 = LT:GetFactionColor(zone)
+                local r2, g2, b2 = Tourist:GetFactionColor(zone)
                 local hex2 = ("|cff%02x%02x%02x"):format(r2 * 255, g2 * 255, b2 * 255)
 
-                local min, max = LT:GetLevel(zone)
+                local min, max = Tourist:GetLevel(zone)
                 local level_str
 
                 if min == max then
@@ -443,7 +443,7 @@ do
                 line = tooltip:AddLine()
                 tooltip:SetCell(line, 1, ("%s%s|r"):format(hex2, zone), "LEFT", 2)
                 tooltip:SetCell(line, 3, level_str)
-                tooltip:SetCell(line, 5, LT:GetContinent(zone))
+                tooltip:SetCell(line, 5, Tourist:GetContinent(zone))
             end
             tooltip:AddLine(" ")
         end
@@ -481,12 +481,12 @@ do
 
             line, column = tooltip:AddLine()
             tooltip:SetCell(line, column, CONTINENT, "LEFT", 2)
-            tooltip:SetCell(line, 5, LT:GetContinent(current_zone))
+            tooltip:SetCell(line, 5, Tourist:GetContinent(current_zone))
 
-            local min, max = LT:GetLevel(current_zone)
+            local min, max = Tourist:GetLevel(current_zone)
 
             if min > 0 and max > 0 then
-                local r, g, b = LT:GetLevelColor(current_zone)
+                local r, g, b = Tourist:GetLevelColor(current_zone)
                 local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 
                 line = tooltip:AddLine()
@@ -494,7 +494,7 @@ do
                 tooltip:SetCell(line, 3, ("%s%d - %d|r"):format(hex, min, max))
             end
 
-            local fishingLevel = LT:GetFishingSkillInfo(current_zone).maxLevel
+            local fishingLevel = Tourist:GetFishingSkillInfo(current_zone).maxLevel
 
             if fishingLevel then
                 line = tooltip:AddLine()
@@ -579,7 +579,7 @@ function TravelAgent:OnEnable()
     self:RegisterEvent("ZONE_CHANGED_INDOORS", self.Update)
     self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.Update)
 
-    DataObj = LDB:NewDataObject(ADDON_NAME, {
+    DataObj = DataBroker:NewDataObject(ADDON_NAME, {
         type = "data source",
         label = ADDON_NAME,
         text = " ",
@@ -590,11 +590,11 @@ function TravelAgent:OnEnable()
     })
 
     if db.datafeed.show_coords then
-        CoordFeed = LDB:NewDataObject(ADDON_NAME .. "Coordinates", CoordFeedData)
+        CoordFeed = DataBroker:NewDataObject(ADDON_NAME .. "Coordinates", CoordFeedData)
     end
 
-    if LDBIcon then
-        LDBIcon:Register(ADDON_NAME, DataObj, db.datafeed.minimap_icon)
+    if DBIcon then
+        DBIcon:Register(ADDON_NAME, DataObj, db.datafeed.minimap_icon)
     end
     self:Update()
 end
@@ -628,7 +628,7 @@ local function GetOptions()
                             set = function(info, value)
                                 db.datafeed.minimap_icon.hide = not value
 
-                                LDBIcon[value and "Show" or "Hide"](LDBIcon, ADDON_NAME)
+                                DBIcon[value and "Show" or "Hide"](DBIcon, ADDON_NAME)
                             end,
                         },
                         show_zone = {
@@ -681,7 +681,7 @@ local function GetOptions()
 
                                 if db.datafeed.show_coords then
                                     if not CoordFeed then
-                                        CoordFeed = LDB:NewDataObject(ADDON_NAME .. "Coordinates", CoordFeedData)
+                                        CoordFeed = DataBroker:NewDataObject(ADDON_NAME .. "Coordinates", CoordFeedData)
                                     end
                                     CoordFeed.text = GetCoords()
                                 end
