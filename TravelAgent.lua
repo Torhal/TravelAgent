@@ -12,7 +12,7 @@ local ADDON_NAME = ...
 
 local TravelAgent = LibStub("AceAddon-3.0"):NewAddon(ADDON_NAME, "AceEvent-3.0")
 
-local LQT = LibStub("LibQTip-1.0")
+local LQT = LibStub("LibQTip-2.0")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
 local LT = LibStub("LibTourist-3.0")
@@ -28,48 +28,30 @@ local tooltip
 -------------------------------------------------------------------------------
 -- Constants
 -------------------------------------------------------------------------------
-local CONTINENT_DATA = {
-    [Z["Kalimdor"]] = {
-        id = 1,
-        zone_names = {},
-        zone_ids = {}
-    },
-    [Z["Eastern Kingdoms"]] = {
-        id = 2,
-        zone_names = {},
-        zone_ids = {}
-    },
-    [Z["Outland"]] = {
-        id = 3,
-        zone_names = {},
-        zone_ids = {}
-    },
-    [Z["Northrend"]] = {
-        id = 4,
-        zone_names = {},
-        zone_ids = {}
-    },
-    [Z["The Maelstrom"]] = {
-        id = 5,
-        zone_names = {},
-        zone_ids = {}
-    },
-    [Z["Pandaria"]] = {
-        id = 6,
-        zone_names = {},
-        zone_ids = {}
-    },
-    [Z["Draenor"]] = {
-        id = 7,
-        zone_names = {},
-        zone_ids = {}
-    },
-    [Z["Broken Isles"]] = {
-        id = 8,
-        zone_names = {},
-        zone_ids = {}
-    }
+local LocalizedContinentNames = {
+    Z["Kalimdor"],
+    Z["Eastern Kingdoms"],
+    Z["Outland"],
+    Z["Northrend"],
+    Z["The Maelstrom"],
+    Z["Pandaria"],
+    Z["Draenor"],
+    Z["Broken Isles"],
+    Z["Zandalar"],
+    Z["Kul Tiras"],
+    Z["The Shadowlands"],
+    Z["Dragon Isles"],
 }
+
+local CONTINENT_DATA = {}
+
+for index = 1, #LocalizedContinentNames do
+    CONTINENT_DATA[LocalizedContinentNames[index]] = {
+        id = index,
+        zone_names = {},
+        zone_ids = {},
+    }
+end
 
 local defaults = {
     global = {
@@ -94,8 +76,8 @@ local defaults = {
             rec_instances = true,
             battlegrounds = true,
             miscellaneous = true,
-        }
-    }
+        },
+    },
 }
 
 -------------------------------------------------------------------------------
@@ -170,9 +152,9 @@ local function GetCoords(to_chat)
     x = x or 0
     y = y or 0
 
-    local retstr = PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100, y * 100))
+    local coords = PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100, y * 100))
 
-    return to_chat and (CHAT_TEXT .. " " .. retstr) or retstr
+    return to_chat and ("%s %s"):format(CHAT_TEXT, coords) or coords
 end
 
 -----------------------------------------------------------------------
@@ -285,10 +267,19 @@ do
         if not instanceName then
             return
         end
-        local zoneName, x, y = LT:GetEntrancePortalLocation(instanceName)
-        local continentData = CONTINENT_DATA[LT:GetContinent(zoneName)]
+        local zoneName, x, y = LT:GetEntrancePortalLocation(instanceName) or UNKNOWN, 0, 0
+        local continentData = CONTINENT_DATA[LT:GetContinent()]
 
-        TomTom:AddZWaypoint(continentData.id, continentData.zone_ids[zoneName], x, y, ("%s (%s)"):format(instanceName, zoneName), false, true, true, nil, true, true)
+        _G.CONTINENT_DATA = CONTINENT_DATA
+        _G.continentData = continentData
+
+        print(zoneName)
+        print(("%s - %s, %s"):format(continentData.zone_ids[zoneName], x, y))
+
+        TomTom:AddWaypoint(continentData.zone_ids[zoneName], x, y, {
+            title = ("%s (%s)"):format(instanceName, zoneName),
+            source = "TravelAgent",
+        })
     end
 
     -- Gathers all data relevant to the given instance and adds it to the tooltip.
@@ -345,7 +336,6 @@ do
         if not tooltip then
             tooltip = LQT:Acquire(ADDON_NAME .. "Tooltip", 6, "LEFT", "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
             tooltip:EnableMouse(true)
-
         end
 
         local current_zone, _, pvp_label, _, zone_text = GetZoneData(false)
@@ -783,9 +773,9 @@ local function GetOptions()
                                 db.tooltip.timer = math.max(0.1, math.min(2, value))
                             end,
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
     end
     return options
