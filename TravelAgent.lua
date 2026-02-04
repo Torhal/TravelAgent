@@ -23,6 +23,8 @@ local Z = Tourist:GetLookupTable()
 
 local DataObj
 local CoordFeed
+
+---@type LibQTip-2.0.Tooltip|nil
 local tooltip
 
 -------------------------------------------------------------------------------
@@ -165,7 +167,7 @@ end
 -- Tooltip and DataBroker methods.
 -----------------------------------------------------------------------
 local DrawTooltip -- Upvalue needed for chicken-or-egg-syndrome.
-local updater
+local updater = CreateFrame("Frame", nil, UIParent)
 
 local function LDB_OnClick(display, button)
     if button == "RightButton" then
@@ -200,62 +202,62 @@ end
 
 do
     -- Assigned in DrawTooltip for use elsewhere.
-    local LDB_anchor
-    local coord_line
+    local displayAnchor
 
-    local function SetCoordLine()
-        if not coord_line or tooltip:GetLineCount() < 1 then
+    ---@type LibQTip-2.0.Row|nil
+    local coordinateRow
+
+    local function SetCoordRow()
+        if not coordinateRow or not tooltip or tooltip:GetRowCount() < 1 then
             return
         end
 
-        tooltip:SetCell(coord_line, 6, GetCoords())
+        coordinateRow:GetCell(1):SetText(GetCoords()):SetJustifyH("CENTER"):SetColSpan(6)
     end
 
-    local last_update = 0
-    local prev_x, prev_y = 0, 0
-
-    updater = CreateFrame("Frame", nil, UIParent)
+    local lastUpdate = 0
+    local previousX, previousY = 0, 0
 
     -- Handles tooltip hiding and the dynamic refresh of coordinates (both for the datafeed and if moving while the tooltip is open).
     updater:SetScript("OnUpdate", function(self, elapsed)
-        last_update = last_update + elapsed
+        lastUpdate = lastUpdate + elapsed
 
-        if last_update < 0.1 then
+        if lastUpdate < 0.1 then
             return
         end
 
-        local update_coords = false
+        local updateCoords = false
         local x, y = HereBeDragons:GetPlayerZonePosition()
         x = x or 0
         y = y or 0
 
-        if prev_x ~= x or prev_y ~= y then
-            prev_x, prev_y = x, y
-            update_coords = true
+        if previousX ~= x or previousY ~= y then
+            previousX, previousY = x, y
+            updateCoords = true
         end
 
         if tooltip then
-            if tooltip:IsMouseOver() or (LDB_anchor and LDB_anchor:IsMouseOver()) then
-                if coord_line and update_coords then
-                    SetCoordLine()
+            if tooltip:IsMouseOver() or (displayAnchor and displayAnchor:IsMouseOver()) then
+                if coordinateRow and updateCoords then
+                    SetCoordRow()
                 end
                 self.elapsed = 0
             else
-                self.elapsed = self.elapsed + last_update
+                self.elapsed = self.elapsed + lastUpdate
 
                 if self.elapsed >= db.tooltip.timer then
-                    tooltip = QTip:Release(tooltip)
-                    LDB_anchor = nil
-                    coord_line = nil
+                    tooltip = QTip:ReleaseTooltip(tooltip)
+                    displayAnchor = nil
+                    coordinateRow = nil
                 end
             end
         end
 
-        if CoordFeed and update_coords then
+        if CoordFeed and updateCoords then
             CoordFeed.text = GetCoords()
         end
 
-        last_update = 0
+        lastUpdate = 0
     end)
 
     -----------------------------------------------------------------------
@@ -264,13 +266,14 @@ do
     local function SectionOnMouseUp(cell, section)
         db.tooltip_sections[section] = not db.tooltip_sections[section]
 
-        DrawTooltip(LDB_anchor)
+        DrawTooltip(displayAnchor)
     end
 
     local function InstanceOnMouseUp(cell, instanceName)
         if not instanceName then
             return
         end
+
         local zoneName, x, y = Tourist:GetEntrancePortalLocation(instanceName) or UNKNOWN, 0, 0
         local continentData = CONTINENT_DATA[Tourist:GetContinent()]
 
@@ -288,6 +291,10 @@ do
 
     -- Gathers all data relevant to the given instance and adds it to the tooltip.
     local function Tooltip_AddInstance(instance)
+        if not tooltip then
+            return
+        end
+
         local r, g, b = Tourist:GetLevelColor(instance)
         local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 
@@ -299,31 +306,31 @@ do
         local _, x, y = Tourist:GetEntrancePortalLocation(instance)
         local group = Tourist:GetInstanceGroupSize(instance)
 
-        local level_str
+        local levelText
 
         if min == max then
-            level_str = ("%s%d|r"):format(hex, min)
+            levelText = ("%s%d|r"):format(hex, min)
         else
-            level_str = ("%s%d - %d|r"):format(hex, min, max)
+            levelText = ("%s%d - %d|r"):format(hex, min, max)
         end
-        local coord_str = ((not x or not y) and "" or ("%.2f, %.2f"):format(x, y))
 
+        local coordText = ((not x or not y) and "--" or ("%.2f, %.2f"):format(x, y))
         local complex = Tourist:GetComplex(instance)
         local colon = complex and ": " or ""
-        local line = tooltip:AddLine()
 
-        tooltip:SetCell(line, 1, ("%s%s%s"):format(complex and complex or "", colon, instance), "LEFT", 2)
-        tooltip:SetCell(line, 3, level_str)
-        tooltip:SetCell(line, 4, group > 0 and ("%d"):format(group) or "")
+        local row = tooltip:AddRow()
+        row:GetCell(1):SetFormattedText("%s%s%s", complex and complex or "", colon, instance)
+        row:GetCell(2):SetText(levelText)
+        row:GetCell(3):SetText(group > 0 and ("%d"):format(group) or "")
 
         if location ~= complex then
-            tooltip:SetCell(line, 5, ("%s%s|r"):format(hex2, location or UNKNOWN))
+            row:GetCell(5):SetFormattedText("%s%s|r", hex2, location or UNKNOWN)
         end
 
-        tooltip:SetCell(line, 6, coord_str)
+        row:GetCell(6):SetText(coordText)
 
         if TomTom and x and y then
-            tooltip:SetLineScript(line, "OnMouseUp", InstanceOnMouseUp, instance)
+            row:SetScript("OnMouseUp", InstanceOnMouseUp, instance)
         end
     end
 
@@ -335,98 +342,108 @@ do
 
     function DrawTooltip(anchor)
         -- Save the value of the anchor so it can be used elsewhere.
-        LDB_anchor = anchor
+        displayAnchor = anchor
 
         if not tooltip then
-            tooltip = LQT:Acquire(ADDON_NAME .. "Tooltip", 6, "LEFT", "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
+            tooltip =
+                QTip:AcquireTooltip(ADDON_NAME .. "Tooltip", 6, "LEFT", "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
             tooltip:EnableMouse(true)
         end
 
-        local current_zone, _, pvp_label, _, zone_text = GetZoneData(false)
+        local currentZoneName, _, pvpLabel, _, zoneText = GetZoneData(false)
 
         tooltip:Clear()
         tooltip:SmartAnchorTo(anchor)
         tooltip:SetScale(db.tooltip.scale)
 
-        local line, column = tooltip:AddHeader()
-        tooltip:SetCell(line, 1, zone_text, "CENTER", 6)
+        tooltip:AddHeadingRow():GetCell(1):SetText(zoneText):SetJustifyH("CENTER"):SetColSpan(6)
+        tooltip:AddHeadingRow():GetCell(1):SetText(pvpLabel):SetJustifyH("CENTER"):SetColSpan(6)
 
-        line, column = tooltip:AddHeader()
-        tooltip:SetCell(line, 1, pvp_label, "CENTER", 6)
         tooltip:AddSeparator()
 
-        line, column = tooltip:AddLine()
-        coord_line = line
+        coordinateRow = tooltip:AddHeadingRow()
 
-        tooltip:SetCell(line, column, LOCATION_COLON, "LEFT", 2)
-        SetCoordLine()
+        SetCoordRow()
 
-        tooltip:AddLine(" ")
+        tooltip:AddSeparator()
+        tooltip:AddRow(" ")
 
-        if Tourist:DoesZoneHaveInstances(current_zone) then
-            local cur_instances = db.tooltip_sections.cur_instances
-            local header_line = tooltip:AddHeader()
+        if Tourist:DoesZoneHaveInstances(currentZoneName) then
+            local currentInstances = db.tooltip_sections.cur_instances
+            local headingRow = tooltip:AddHeadingRow()
             local count = 0
 
-            if cur_instances then
+            if currentInstances then
                 tooltip:AddSeparator()
 
-                for instance in Tourist:IterateZoneInstances(current_zone) do
+                for instance in Tourist:IterateZoneInstances(currentZoneName) do
                     Tooltip_AddInstance(instance)
                     count = count + 1
                 end
-                tooltip:AddLine(" ")
-            end
-            tooltip:SetCell(header_line, 1, cur_instances and ICON_MINUS or ICON_PLUS)
-            tooltip:SetCell(header_line, 2, (count > 1 and MULTIPLE_DUNGEONS or LFG_TYPE_DUNGEON), "LEFT")
 
-            tooltip:SetLineScript(header_line, "OnMouseUp", SectionOnMouseUp, "cur_instances")
+                tooltip:AddRow(" ")
+            end
+
+            headingRow
+                :GetCell(1)
+                :SetFormattedText(
+                    "%s %s",
+                    currentInstances and ICON_MINUS or ICON_PLUS,
+                    count > 1 and MULTIPLE_DUNGEONS or LFG_TYPE_DUNGEON
+                )
+                :SetJustifyH("CENTER")
+                :SetColSpan(6)
+
+            headingRow:SetScript("OnMouseUp", SectionOnMouseUp, "cur_instances")
         end
 
-        local found_battleground = false
+        local foundBattleground = false
 
         if Tourist:HasRecommendedInstances() then
-            local rec_instances = db.tooltip_sections.rec_instances
+            local recommendedInstances = db.tooltip_sections.rec_instances
 
-            line = tooltip:AddHeader()
-            tooltip:SetCell(line, 1, rec_instances and ICON_MINUS or ICON_PLUS)
-            tooltip:SetCell(line, 2, L["Recommended Instances"], "LEFT")
+            row = tooltip:AddHeadingRow()
+            row:GetCell(1)
+                :SetJustifyH("CENTER")
+                :SetColSpan(6)
+                :SetFormattedText("%s %s", recommendedInstances and ICON_MINUS or ICON_PLUS, L["Recommended Instances"])
+            row:SetScript("OnMouseUp", SectionOnMouseUp, "rec_instances")
 
-            tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "rec_instances")
-
-            -- Unfortunately, two separate checks for rec_instances are needed for the separator and
-            -- the empty line below since rec_instances may be false but we need to gather battleground
+            -- Unfortunately, two separate checks for recommendedInstances are needed for the separator and
+            -- the empty line below since recommendedInstances may be false but we need to gather battleground
             -- information in the instance loop.
-            if rec_instances then
+            if recommendedInstances then
                 tooltip:AddSeparator()
             end
 
             for instance in Tourist:IterateRecommendedInstances() do
                 if Tourist:IsBattleground(instance) then
-                    if not found_battleground then
+                    if not foundBattleground then
                         wipe(battlegrounds)
-                        found_battleground = true
+                        foundBattleground = true
                     end
+
                     battlegrounds[instance] = true
-                elseif rec_instances then
+                elseif recommendedInstances then
                     Tooltip_AddInstance(instance)
                 end
             end
 
-            if rec_instances then
-                tooltip:AddLine(" ")
+            if recommendedInstances then
+                tooltip:AddRow(" ")
             end
         end
 
-        local rec_zones = db.tooltip_sections.rec_zones
+        local recommendedZones = db.tooltip_sections.rec_zones
 
-        line = tooltip:AddHeader()
-        tooltip:SetCell(line, 1, rec_zones and ICON_MINUS or ICON_PLUS)
-        tooltip:SetCell(line, 2, L["Recommended Zones"], "LEFT")
+        row = tooltip:AddHeadingRow()
+        row:GetCell(1)
+            :SetJustifyH("CENTER")
+            :SetColSpan(6)
+            :SetFormattedText("%s %s", recommendedZones and ICON_MINUS or ICON_PLUS, L["Recommended Zones"])
+        row:SetScript("OnMouseUp", SectionOnMouseUp, "rec_zones")
 
-        tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "rec_zones")
-
-        if rec_zones then
+        if recommendedZones then
             tooltip:AddSeparator()
 
             for zone in Tourist:IterateRecommendedZones() do
@@ -437,91 +454,93 @@ do
                 local hex2 = ("|cff%02x%02x%02x"):format(r2 * 255, g2 * 255, b2 * 255)
 
                 local min, max = Tourist:GetLevel(zone)
-                local level_str
+                local levelText = min == max and ("%s%d|r"):format(hex1, min) or ("%s%d - %d|r"):format(hex1, min, max)
 
-                if min == max then
-                    level_str = ("%s%d|r"):format(hex1, min)
-                else
-                    level_str = ("%s%d - %d|r"):format(hex1, min, max)
-                end
-                line = tooltip:AddLine()
-                tooltip:SetCell(line, 1, ("%s%s|r"):format(hex2, zone), "LEFT", 2)
-                tooltip:SetCell(line, 3, level_str)
-                tooltip:SetCell(line, 5, Tourist:GetContinent(zone))
+                local row = tooltip:AddRow()
+                row:GetCell(1):SetFormattedText("%s%s|r", hex2, zone)
+                row:GetCell(2):SetText(levelText)
+                row:GetCell(5):SetText(Tourist:GetContinent(zone))
+                row:GetCell(6):SetText("--")
             end
-            tooltip:AddLine(" ")
+
+            tooltip:AddRow(" ")
         end
 
-        if found_battleground then
-            local bg_toggled = db.tooltip_sections.battlegrounds
+        if foundBattleground then
+            local isBGToggled = db.tooltip_sections.battlegrounds
 
-            line = tooltip:AddHeader()
-            tooltip:SetCell(line, 1, bg_toggled and ICON_MINUS or ICON_PLUS)
-            tooltip:SetCell(line, 2, BATTLEGROUNDS, "LEFT")
+            row = tooltip:AddHeadingRow()
+            row:GetCell(1)
+                :SetJustifyH("CENTER")
+                :SetColSpan(6)
+                :SetFormattedText("%s %s", isBGToggled and ICON_MINUS or ICON_PLUS, BATTLEGROUNDS)
+            row:SetScript("OnMouseUp", SectionOnMouseUp, "battlegrounds")
 
-            tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "battlegrounds")
-
-            if bg_toggled then
+            if isBGToggled then
                 tooltip:AddSeparator()
 
                 for instance in pairs(battlegrounds) do
                     Tooltip_AddInstance(instance)
                 end
-                tooltip:AddLine(" ")
+
+                tooltip:AddRow(" ")
             end
         end
 
-        local misc_toggled = db.tooltip_sections.miscellaneous
+        local isMiscToggled = db.tooltip_sections.miscellaneous
 
-        line = tooltip:AddHeader()
+        row = tooltip:AddHeadingRow()
+        row:GetCell(1)
+            :SetJustifyH("CENTER")
+            :SetColSpan(6)
+            :SetFormattedText("%s %s", isMiscToggled and ICON_MINUS or ICON_PLUS, MISCELLANEOUS)
+        row:SetScript("OnMouseUp", SectionOnMouseUp, "miscellaneous")
 
-        tooltip:SetCell(line, 1, misc_toggled and ICON_MINUS or ICON_PLUS)
-        tooltip:SetCell(line, 2, MISCELLANEOUS, "LEFT", 5)
-
-        tooltip:SetLineScript(line, "OnMouseUp", SectionOnMouseUp, "miscellaneous")
-
-        if misc_toggled then
+        if isMiscToggled then
             tooltip:AddSeparator()
 
-            line, column = tooltip:AddLine()
-            tooltip:SetCell(line, column, CONTINENT, "LEFT", 2)
-            tooltip:SetCell(line, 5, Tourist:GetContinent(current_zone))
+            row = tooltip:AddRow()
+            row:GetCell(1):SetText(CONTINENT)
+            row:GetCell(5):SetText(Tourist:GetContinent(currentZoneName))
 
-            local min, max = Tourist:GetLevel(current_zone)
+            local min, max = Tourist:GetLevel(currentZoneName)
 
             if min > 0 and max > 0 then
-                local r, g, b = Tourist:GetLevelColor(current_zone)
+                local r, g, b = Tourist:GetLevelColor(currentZoneName)
                 local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 
-                line = tooltip:AddLine()
-                tooltip:SetCell(line, 1, LEVEL_RANGE, "LEFT", 2)
-                tooltip:SetCell(line, 3, ("%s%d - %d|r"):format(hex, min, max))
+                row = tooltip:AddRow()
+                row:GetCell(1):SetText(LEVEL_RANGE)
+                row:GetCell(3):SetFormattedText("%s%d - %d|r", hex, min, max)
             end
 
-            local fishingLevel = Tourist:GetFishingSkillInfo(current_zone).maxLevel
+            local fishingLevel = Tourist:GetFishingSkillInfo(currentZoneName).maxLevel
 
             if fishingLevel then
-                line = tooltip:AddLine()
-                tooltip:SetCell(line, 1, SPELL_FAILED_FISHING_TOO_LOW:format(fishingLevel), "CENTER", 6)
+                tooltip
+                    :AddRow()
+                    :GetCell(1)
+                    :SetFormattedText(SPELL_FAILED_FISHING_TOO_LOW, fishingLevel)
+                    :SetJustifyH("CENTER")
+                    :SetColSpan(6)
             end
-            tooltip:AddLine(" ")
+
+            tooltip:AddRow(" ")
         end
 
         if not db.tooltip.hide_hint then
-            line = tooltip:AddLine()
-            tooltip:SetCell(line, 1, L["Left-click to open the World Map."], "LEFT", 6)
+            tooltip:AddSeparator()
 
-            line = tooltip:AddLine()
-            tooltip:SetCell(line, 1, L["Shift+Left-click to announce your location."], "LEFT", 6)
+            tooltip:AddRow():GetCell(1):SetText(L["Left-click to open the World Map."]):SetColSpan(6)
+            tooltip:AddRow():GetCell(1):SetText(L["Shift+Left-click to announce your location."]):SetColSpan(6)
 
             if Atlas_Toggle then
-                line = tooltip:AddLine()
-                tooltip:SetCell(line, 1, L["Control+Left-click to toggle Atlas."], "LEFT", 6)
+                tooltip:AddRow():GetCell(1):SetText(L["Control+Left-click to toggle Atlas."]):SetColSpan(6)
             end
 
-            line = tooltip:AddLine()
-            tooltip:SetCell(line, 1, L["Right-click to open configuration menu."], "LEFT", 6)
+            tooltip:AddRow():GetCell(1):SetText(L["Right-click to open configuration menu."]):SetColSpan(6)
         end
+
         updater.elapsed = 0
         tooltip:Show()
     end
@@ -536,7 +555,7 @@ do
         DataObj.icon = ([[Interface\Icons\INV_Misc_Map%s0%d]]):format((num == 1 and "_" or ""), num)
 
         if tooltip and tooltip:IsVisible() then
-            DrawTooltip(LDB_anchor)
+            DrawTooltip(displayAnchor)
         end
     end
 end -- do
