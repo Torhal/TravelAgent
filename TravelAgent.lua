@@ -89,35 +89,37 @@ local CHAT_TEXT -- Cache for inserting into the ChatFrame's EditBox
 -------------------------------------------------------------------------------
 -- Helper functions
 -------------------------------------------------------------------------------
-local function GetZoneData(datafeed)
-    local zone_status, subzone_ispvp, controlling_faction = GetZonePVPInfo()
-    local current_zone = GetRealZoneText()
-    local current_subzone = GetSubZoneText()
 
-    if current_subzone == "" or current_subzone == current_zone then
-        current_subzone = nil
+local function GetZoneData(datafeed)
+    local zoneClassification, isSubZonePvP, factionName = GetZonePVPInfo()
+    local zoneText = GetRealZoneText()
+
+    ---@type string|nil
+    local subZoneText = GetSubZoneText()
+
+    if subZoneText == "" or subZoneText == zoneText then
+        subZoneText = nil
     end
 
-    local zone_str, subzone_str
     local label
     local r, g, b = 1.0, 1.0, 1.0
 
-    if zone_status == "sanctuary" then
+    if zoneClassification == "sanctuary" then
         label = SANCTUARY_TERRITORY
         r, g, b = 0.41, 0.8, 0.94
-    elseif zone_status == "arena" then
+    elseif zoneClassification == "arena" then
         label = FREE_FOR_ALL_TERRITORY
         r, g, b = 1.0, 0.1, 0.1
-    elseif zone_status == "friendly" then
-        label = FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
+    elseif zoneClassification == "friendly" then
+        label = FACTION_CONTROLLED_TERRITORY:format(factionName)
         r, g, b = 0.1, 1.0, 0.1
-    elseif zone_status == "hostile" then
-        label = FACTION_CONTROLLED_TERRITORY:format(controlling_faction)
+    elseif zoneClassification == "hostile" then
+        label = FACTION_CONTROLLED_TERRITORY:format(factionName)
         r, g, b = 1.0, 0.1, 0.1
-    elseif zone_status == "contested" then
+    elseif zoneClassification == "contested" then
         label = CONTESTED_TERRITORY
         r, g, b = 1.0, 0.7, 0
-    elseif zone_status == "combat" then
+    elseif zoneClassification == "combat" then
         label = COMBAT_ZONE
         r, g, b = 1.0, 0.1, 0.1
     else
@@ -125,26 +127,28 @@ local function GetZoneData(datafeed)
         r, g, b = 1.0, 0.9294, 0.7607
     end
 
+    local zoneName, subZoneName
+
     if datafeed then
-        subzone_str = db.datafeed.show_subzone and current_subzone or nil
-        zone_str = db.datafeed.show_zone and current_zone or nil
+        subZoneName = db.datafeed.show_subzone and subZoneText or nil
+        zoneName = db.datafeed.show_zone and zoneText or nil
     else
-        subzone_str = db.tooltip.show_subzone and current_subzone or nil
-        zone_str = db.tooltip.show_zone and current_zone or nil
+        subZoneName = db.tooltip.show_subzone and subZoneText or nil
+        zoneName = db.tooltip.show_zone and zoneText or nil
     end
 
-    if not zone_str and not subzone_str then
-        zone_str = current_zone
+    if not zoneName and not subZoneName then
+        zoneName = zoneText
     end
 
-    local colon = (zone_str and subzone_str) and ": " or ""
+    local colon = (zoneName and subZoneName) and ": " or ""
     local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
-    local text = ("%s%s%s"):format(zone_str or "", colon, subzone_str or "")
-    local color_text = ("%s%s%s%s|r"):format(hex, zone_str or "", colon, subzone_str or "")
+    local text = ("%s%s%s"):format(zoneName or "", colon, subZoneName or "")
+    local color_text = ("%s%s%s%s|r"):format(hex, zoneName or "", colon, subZoneName or "")
 
     label = ("%s%s|r"):format(hex, label)
 
-    return current_zone, current_subzone, label, text, color_text
+    return zoneText, subZoneText, label, text, color_text
 end
 
 local function GetCoords(to_chat)
