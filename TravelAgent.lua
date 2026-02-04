@@ -376,8 +376,8 @@ do
 
         tooltip:AddSeparator()
 
-        tooltip:AddHeadingRow():GetCell(1):SetText(zoneText):SetJustifyH("CENTER"):SetColSpan(6)
-        tooltip:AddHeadingRow():GetCell(1):SetText(pvpLabel):SetJustifyH("CENTER"):SetColSpan(6)
+        tooltip:AddHeadingRow():GetCell(1):SetText(zoneText):SetJustifyH("CENTER"):SetColSpan(0)
+        tooltip:AddHeadingRow():GetCell(1):SetText(pvpLabel):SetJustifyH("CENTER"):SetColSpan(0)
 
         tooltip:AddSeparator()
 
@@ -405,16 +405,15 @@ do
             end
 
             headingRow
+                :SetScript("OnMouseUp", SectionOnMouseUp, "cur_instances")
                 :GetCell(1)
+                :SetJustifyH("CENTER")
+                :SetColSpan(0)
                 :SetFormattedText(
                     "%s %s",
                     currentInstances and ICON_MINUS or ICON_PLUS,
                     count > 1 and MULTIPLE_DUNGEONS or LFG_TYPE_DUNGEON
                 )
-                :SetJustifyH("CENTER")
-                :SetColSpan(6)
-
-            headingRow:SetScript("OnMouseUp", SectionOnMouseUp, "cur_instances")
         end
 
         local foundBattleground = false
@@ -422,12 +421,13 @@ do
         if Tourist:HasRecommendedInstances() then
             local recommendedInstances = db.tooltip_sections.rec_instances
 
-            row = tooltip:AddHeadingRow()
-            row:GetCell(1)
+            tooltip
+                :AddHeadingRow()
+                :SetScript("OnMouseUp", SectionOnMouseUp, "rec_instances")
+                :GetCell(1)
                 :SetJustifyH("CENTER")
-                :SetColSpan(6)
+                :SetColSpan(0)
                 :SetFormattedText("%s %s", recommendedInstances and ICON_MINUS or ICON_PLUS, L["Recommended Instances"])
-            row:SetScript("OnMouseUp", SectionOnMouseUp, "rec_instances")
 
             -- Unfortunately, two separate checks for recommendedInstances are needed for the separator and
             -- the empty line below since recommendedInstances may be false but we need to gather battleground
@@ -456,12 +456,13 @@ do
 
         local recommendedZones = db.tooltip_sections.rec_zones
 
-        row = tooltip:AddHeadingRow()
-        row:GetCell(1)
+        tooltip
+            :AddHeadingRow()
+            :SetScript("OnMouseUp", SectionOnMouseUp, "rec_zones")
+            :GetCell(1)
             :SetJustifyH("CENTER")
-            :SetColSpan(6)
+            :SetColSpan(0)
             :SetFormattedText("%s %s", recommendedZones and ICON_MINUS or ICON_PLUS, L["Recommended Zones"])
-        row:SetScript("OnMouseUp", SectionOnMouseUp, "rec_zones")
 
         if recommendedZones then
             tooltip:AddSeparator()
@@ -489,12 +490,13 @@ do
         if foundBattleground then
             local isBGToggled = db.tooltip_sections.battlegrounds
 
-            row = tooltip:AddHeadingRow()
-            row:GetCell(1)
+            tooltip
+                :AddHeadingRow()
+                :SetScript("OnMouseUp", SectionOnMouseUp, "battlegrounds")
+                :GetCell(1)
                 :SetJustifyH("CENTER")
-                :SetColSpan(6)
+                :SetColSpan(0)
                 :SetFormattedText("%s %s", isBGToggled and ICON_MINUS or ICON_PLUS, BATTLEGROUNDS)
-            row:SetScript("OnMouseUp", SectionOnMouseUp, "battlegrounds")
 
             if isBGToggled then
                 tooltip:AddSeparator()
@@ -509,17 +511,18 @@ do
 
         local isMiscToggled = db.tooltip_sections.miscellaneous
 
-        row = tooltip:AddHeadingRow()
-        row:GetCell(1)
+        tooltip
+            :AddHeadingRow()
+            :SetScript("OnMouseUp", SectionOnMouseUp, "miscellaneous")
+            :GetCell(1)
             :SetJustifyH("CENTER")
-            :SetColSpan(6)
+            :SetColSpan(0)
             :SetFormattedText("%s %s", isMiscToggled and ICON_MINUS or ICON_PLUS, MISCELLANEOUS)
-        row:SetScript("OnMouseUp", SectionOnMouseUp, "miscellaneous")
 
         if isMiscToggled then
             tooltip:AddSeparator()
 
-            row = tooltip:AddRow()
+            local row = tooltip:AddRow()
             row:GetCell(1):SetText(CONTINENT)
             row:GetCell(5):SetText(Tourist:GetContinent(currentZoneName))
 
@@ -542,7 +545,7 @@ do
                     :GetCell(1)
                     :SetFormattedText(SPELL_FAILED_FISHING_TOO_LOW, fishingLevel)
                     :SetJustifyH("CENTER")
-                    :SetColSpan(6)
+                    :SetColSpan(0)
             end
 
             tooltip:AddRow(" ")
@@ -551,14 +554,14 @@ do
         if not db.tooltip.hide_hint then
             tooltip:AddSeparator()
 
-            tooltip:AddRow():GetCell(1):SetText(L["Left-click to open the World Map."]):SetColSpan(6)
-            tooltip:AddRow():GetCell(1):SetText(L["Shift+Left-click to announce your location."]):SetColSpan(6)
+            tooltip:AddRow():GetCell(1):SetText(L["Left-click to open the World Map."]):SetColSpan(0)
+            tooltip:AddRow():GetCell(1):SetText(L["Shift+Left-click to announce your location."]):SetColSpan(0)
 
             if Atlas_Toggle then
-                tooltip:AddRow():GetCell(1):SetText(L["Control+Left-click to toggle Atlas."]):SetColSpan(6)
+                tooltip:AddRow():GetCell(1):SetText(L["Control+Left-click to toggle Atlas."]):SetColSpan(0)
             end
 
-            tooltip:AddRow():GetCell(1):SetText(L["Right-click to open configuration menu."]):SetColSpan(6)
+            tooltip:AddRow():GetCell(1):SetText(L["Right-click to open configuration menu."]):SetColSpan(0)
         end
 
         updater.elapsed = 0
