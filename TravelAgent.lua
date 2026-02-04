@@ -8,9 +8,9 @@ local select = select
 -------------------------------------------------------------------------------
 -- Addon namespace.
 -------------------------------------------------------------------------------
-local ADDON_NAME = ...
+local AddOnFolderName = ...
 
-local TravelAgent = LibStub("AceAddon-3.0"):NewAddon(ADDON_NAME, "AceEvent-3.0")
+local TravelAgent = LibStub("AceAddon-3.0"):NewAddon(AddOnFolderName, "AceEvent-3.0")
 
 local QTip = LibStub("LibQTip-2.0")
 local DataBroker = LibStub("LibDataBroker-1.1")
@@ -18,7 +18,7 @@ local DBIcon = LibStub("LibDBIcon-1.0")
 local Tourist = LibStub("LibTourist-3.0")
 local HereBeDragons = LibStub("HereBeDragons-2.0")
 
-local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME)
+local L = LibStub("AceLocale-3.0"):GetLocale(AddOnFolderName)
 local Z = Tourist:GetLookupTable()
 
 local DataObj
@@ -334,6 +334,10 @@ do
         end
     end
 
+    local TitleFont = CreateFont("TravelAgentTitleFont")
+    TitleFont:SetTextColor(0.510, 0.773, 1.0)
+    TitleFont:SetFontObject("QuestTitleFont")
+
     local ICON_PLUS = [[|TInterface\BUTTONS\UI-PlusButton-Up:20:20|t]]
     local ICON_MINUS = [[|TInterface\BUTTONS\UI-MinusButton-Up:20:20|t]]
 
@@ -345,16 +349,32 @@ do
         displayAnchor = anchor
 
         if not tooltip then
-            tooltip =
-                QTip:AcquireTooltip(ADDON_NAME .. "Tooltip", 6, "LEFT", "LEFT", "CENTER", "RIGHT", "RIGHT", "RIGHT")
+            tooltip = QTip:AcquireTooltip(
+                AddOnFolderName .. "Tooltip",
+                6,
+                "LEFT",
+                "LEFT",
+                "CENTER",
+                "RIGHT",
+                "RIGHT",
+                "RIGHT"
+            )
             tooltip:EnableMouse(true)
         end
 
         local currentZoneName, _, pvpLabel, _, zoneText = GetZoneData(false)
 
-        tooltip:Clear()
-        tooltip:SmartAnchorTo(anchor)
-        tooltip:SetScale(db.tooltip.scale)
+        tooltip:Clear():SmartAnchorTo(anchor):SetScale(db.tooltip.scale)
+
+        tooltip
+            :AddRow()
+            :GetCell(1)
+            :SetColSpan(0)
+            :SetJustifyH("CENTER")
+            :SetFontObject(TitleFont)
+            :SetText(AddOnFolderName)
+
+        tooltip:AddSeparator()
 
         tooltip:AddHeadingRow():GetCell(1):SetText(zoneText):SetJustifyH("CENTER"):SetColSpan(6)
         tooltip:AddHeadingRow():GetCell(1):SetText(pvpLabel):SetJustifyH("CENTER"):SetColSpan(6)
@@ -581,7 +601,7 @@ do
         end
 
         -- Database voodoo.
-        local temp_db = LibStub("AceDB-3.0"):New(ADDON_NAME .. "DB", defaults)
+        local temp_db = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults)
         db = temp_db.global
 
         self:SetupOptions()
@@ -602,9 +622,9 @@ function TravelAgent:OnEnable()
     self:RegisterEvent("ZONE_CHANGED_INDOORS", self.Update)
     self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.Update)
 
-    DataObj = DataBroker:NewDataObject(ADDON_NAME, {
+    DataObj = DataBroker:NewDataObject(AddOnFolderName, {
         type = "data source",
-        label = ADDON_NAME,
+        label = AddOnFolderName,
         text = " ",
         icon = [[Interface\Icons\INV_Misc_Map_0]] .. math.random(9),
         OnEnter = LDB_OnEnter,
@@ -613,11 +633,11 @@ function TravelAgent:OnEnable()
     })
 
     if db.datafeed.show_coords then
-        CoordFeed = DataBroker:NewDataObject(ADDON_NAME .. "Coordinates", CoordFeedData)
+        CoordFeed = DataBroker:NewDataObject(AddOnFolderName .. "Coordinates", CoordFeedData)
     end
 
     if DBIcon then
-        DBIcon:Register(ADDON_NAME, DataObj, db.datafeed.minimap_icon)
+        DBIcon:Register(AddOnFolderName, DataObj, db.datafeed.minimap_icon)
     end
     self:Update()
 end
@@ -630,7 +650,7 @@ local options
 local function GetOptions()
     if not options then
         options = {
-            name = ADDON_NAME,
+            name = AddOnFolderName,
             childGroups = "tab",
             type = "group",
             args = {
@@ -651,7 +671,7 @@ local function GetOptions()
                             set = function(info, value)
                                 db.datafeed.minimap_icon.hide = not value
 
-                                DBIcon[value and "Show" or "Hide"](DBIcon, ADDON_NAME)
+                                DBIcon[value and "Show" or "Hide"](DBIcon, AddOnFolderName)
                             end,
                         },
                         show_zone = {
@@ -704,7 +724,8 @@ local function GetOptions()
 
                                 if db.datafeed.show_coords then
                                     if not CoordFeed then
-                                        CoordFeed = DataBroker:NewDataObject(ADDON_NAME .. "Coordinates", CoordFeedData)
+                                        CoordFeed =
+                                            DataBroker:NewDataObject(AddOnFolderName .. "Coordinates", CoordFeedData)
                                     end
                                     CoordFeed.text = GetCoords()
                                 end
@@ -805,6 +826,6 @@ local function GetOptions()
 end
 
 function TravelAgent:SetupOptions()
-    LibStub("AceConfig-3.0"):RegisterOptionsTable(ADDON_NAME, GetOptions())
-    self.options_frame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(ADDON_NAME)
+    LibStub("AceConfig-3.0"):RegisterOptionsTable(AddOnFolderName, GetOptions())
+    self.options_frame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(AddOnFolderName)
 end
