@@ -15,6 +15,6 @@
 ## X-LoadOn-Always: Delayed
 
 embeds.xml
-
 locale.xml
+SpecializedCells/Manifest.xml
 TravelAgent.lua

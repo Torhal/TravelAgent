@@ -394,8 +394,6 @@ do
             local count = 0
 
             if currentInstances then
-                tooltip:AddSeparator()
-
                 for instance in Tourist:IterateZoneInstances(currentZoneName) do
                     Tooltip_AddInstance(instance)
                     count = count + 1
@@ -406,7 +404,7 @@ do
 
             headingRow
                 :SetScript("OnMouseUp", SectionOnMouseUp, "cur_instances")
-                :GetCell(1)
+                :GetCell(1, QTip:GetCellProvider("TravelAgent Section Header"))
                 :SetJustifyH("CENTER")
                 :SetColSpan(0)
                 :SetFormattedText(
@@ -424,17 +422,10 @@ do
             tooltip
                 :AddHeadingRow()
                 :SetScript("OnMouseUp", SectionOnMouseUp, "rec_instances")
-                :GetCell(1)
+                :GetCell(1, QTip:GetCellProvider("TravelAgent Section Header"))
                 :SetJustifyH("CENTER")
                 :SetColSpan(0)
                 :SetFormattedText("%s %s", recommendedInstances and ICON_MINUS or ICON_PLUS, L["Recommended Instances"])
-
-            -- Unfortunately, two separate checks for recommendedInstances are needed for the separator and
-            -- the empty line below since recommendedInstances may be false but we need to gather battleground
-            -- information in the instance loop.
-            if recommendedInstances then
-                tooltip:AddSeparator()
-            end
 
             for instance in Tourist:IterateRecommendedInstances() do
                 if Tourist:IsBattleground(instance) then
@@ -459,14 +450,12 @@ do
         tooltip
             :AddHeadingRow()
             :SetScript("OnMouseUp", SectionOnMouseUp, "rec_zones")
-            :GetCell(1)
+            :GetCell(1, QTip:GetCellProvider("TravelAgent Section Header"))
             :SetJustifyH("CENTER")
             :SetColSpan(0)
             :SetFormattedText("%s %s", recommendedZones and ICON_MINUS or ICON_PLUS, L["Recommended Zones"])
 
         if recommendedZones then
-            tooltip:AddSeparator()
-
             for zone in Tourist:IterateRecommendedZones() do
                 local r1, g1, b1 = Tourist:GetLevelColor(zone)
                 local hex1 = ("|cff%02x%02x%02x"):format(r1 * 255, g1 * 255, b1 * 255)
@@ -493,14 +482,12 @@ do
             tooltip
                 :AddHeadingRow()
                 :SetScript("OnMouseUp", SectionOnMouseUp, "battlegrounds")
-                :GetCell(1)
+                :GetCell(1, QTip:GetCellProvider("TravelAgent Section Header"))
                 :SetJustifyH("CENTER")
                 :SetColSpan(0)
                 :SetFormattedText("%s %s", isBGToggled and ICON_MINUS or ICON_PLUS, BATTLEGROUNDS)
 
             if isBGToggled then
-                tooltip:AddSeparator()
-
                 for instance in pairs(battlegrounds) do
                     Tooltip_AddInstance(instance)
                 end
@@ -514,14 +501,12 @@ do
         tooltip
             :AddHeadingRow()
             :SetScript("OnMouseUp", SectionOnMouseUp, "miscellaneous")
-            :GetCell(1)
+            :GetCell(1, QTip:GetCellProvider("TravelAgent Section Header"))
             :SetJustifyH("CENTER")
             :SetColSpan(0)
             :SetFormattedText("%s %s", isMiscToggled and ICON_MINUS or ICON_PLUS, MISCELLANEOUS)
 
         if isMiscToggled then
-            tooltip:AddSeparator()
-
             local row = tooltip:AddRow()
             row:GetCell(1):SetText(CONTINENT)
             row:GetCell(5):SetText(Tourist:GetContinent(currentZoneName))
