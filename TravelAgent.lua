@@ -275,18 +275,16 @@ do
         end
 
         local zoneName, x, y = Tourist:GetEntrancePortalLocation(instanceName) or UNKNOWN, 0, 0
-        local continentData = CONTINENT_DATA[Tourist:GetContinent()]
+        local continentName = Tourist:GetContinent(zoneName)
+        local continentData = CONTINENT_DATA[continentName]
+        local zoneID = continentData.zone_ids[zoneName]
 
-        _G.CONTINENT_DATA = CONTINENT_DATA
-        _G.continentData = continentData
-
-        print(zoneName)
-        print(("%s - %s, %s"):format(continentData.zone_ids[zoneName], x, y))
-
-        TomTom:AddWaypoint(continentData.zone_ids[zoneName], x, y, {
-            title = ("%s (%s)"):format(instanceName, zoneName),
-            source = "TravelAgent",
-        })
+        if zoneID then
+            TomTom:AddWaypoint(zoneID, x, y, {
+                title = ("%s (%s)"):format(instanceName, zoneName),
+                source = "TravelAgent",
+            })
+        end
     end
 
     -- Gathers all data relevant to the given instance and adds it to the tooltip.
