@@ -51,16 +51,19 @@
         "MISCELLANEOUS",
         "MULTIPLE_DUNGEONS",
         "NAME",
+        "NOT_APPLICABLE",
         "NOT_BOUND",
         "PARENS_TEMPLATE",
         "SANCTUARY_TERRITORY",
         "SET_NOTE",
         "SPELL_FAILED_FISHING_TOO_LOW",
         "STAT_FORMAT",
+        "TomTom",
         "UNKNOWN",
         "WHISPER",
         "ZONE"
     ],
+    "Lua.diagnostics.libraryFiles": "Enable",
     "Lua.runtime.builtin": {
         "basic": "disable",
         "debug": "disable",
@@ -73,9 +76,11 @@
         "utf8": "disable"
     },
     "Lua.runtime.version": "Lua 5.1",
+    "Lua.type.weakUnionCheck": true,
     "Lua.workspace.library": [
+        "/Users/callahan/Dropbox/World of Warcraft/Interface/AddOns/TravelAgent/Libraries",
         "~/.vscode/extensions/ketho.wow-api-0.22.1/Annotations/Core",
         "~/.vscode/extensions/ketho.wow-api-0.22.1/Annotations/FrameXML"
     ],
-    "Lua.type.weakUnionCheck": true
+    "stylua.targetReleaseVersion": "latest"
 }
