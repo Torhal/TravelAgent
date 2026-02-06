@@ -43,6 +43,7 @@ local LocalizedContinentNames = {
     Z["Kul Tiras"],
     Z["The Shadowlands"],
     Z["Dragon Isles"],
+    Z["Khaz Algar"],
 }
 
 local CONTINENT_DATA = {}
