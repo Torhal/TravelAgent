@@ -213,7 +213,7 @@ do
             return
         end
 
-        coordinateRow:GetCell(1):SetText(GetCoords()):SetJustifyH("CENTER"):SetColSpan(6)
+        coordinateRow:GetCell(1):SetText(GetCoords()):SetJustifyH("CENTER"):SetColSpan(0)
     end
 
     local lastUpdate = 0
@@ -264,6 +264,15 @@ do
     -----------------------------------------------------------------------
     -- DataObj and Tooltip methods.
     -----------------------------------------------------------------------
+
+    local ColumnID = {
+        ZoneName = 1,
+        LevelRange = 2,
+        GroupSize = 3,
+        LocationName = 4,
+        Coordinates = 5,
+    }
+
     local function SectionOnMouseUp(cell, section)
         db.tooltip_sections[section] = not db.tooltip_sections[section]
 
@@ -313,20 +322,20 @@ do
             levelText = ("%s%d - %d|r"):format(hex, min, max)
         end
 
-        local coordText = ((not x or not y) and "--" or ("%.2f, %.2f"):format(x, y))
+        local coordText = ((not x or not y) and NOT_APPLICABLE or ("%.2f, %.2f"):format(x, y))
         local complex = Tourist:GetComplex(instance)
         local colon = complex and ": " or ""
 
         local row = tooltip:AddRow()
-        row:GetCell(1):SetFormattedText("%s%s%s", complex and complex or "", colon, instance)
-        row:GetCell(2):SetText(levelText)
-        row:GetCell(3):SetText(group > 0 and ("%d"):format(group) or "")
+        row:GetCell(ColumnID.ZoneName):SetFormattedText("%s%s%s", complex and complex or "", colon, instance)
+        row:GetCell(ColumnID.LevelRange):SetText(levelText)
+        row:GetCell(ColumnID.GroupSize):SetText(group > 0 and ("%d"):format(group) or "")
 
         if location ~= complex then
-            row:GetCell(5):SetFormattedText("%s%s|r", hex2, location or UNKNOWN)
+            row:GetCell(ColumnID.LocationName):SetFormattedText("%s%s|r", hex2, location or UNKNOWN)
         end
 
-        row:GetCell(6):SetText(coordText)
+        row:GetCell(ColumnID.Coordinates):SetText(coordText)
 
         if TomTom and x and y then
             row:SetScript("OnMouseUp", InstanceOnMouseUp, instance)
@@ -348,16 +357,7 @@ do
         displayAnchor = anchor
 
         if not tooltip then
-            tooltip = QTip:AcquireTooltip(
-                AddOnFolderName .. "Tooltip",
-                6,
-                "LEFT",
-                "LEFT",
-                "CENTER",
-                "RIGHT",
-                "RIGHT",
-                "RIGHT"
-            )
+            tooltip = QTip:AcquireTooltip(AddOnFolderName .. "Tooltip", 5)
             tooltip:EnableMouse(true)
         end
 
@@ -366,7 +366,7 @@ do
         tooltip:Clear():SmartAnchorTo(anchor):SetScale(db.tooltip.scale)
 
         tooltip
-            :AddRow()
+            :AddHeadingRow()
             :GetCell(1)
             :SetColSpan(0)
             :SetJustifyH("CENTER")
@@ -375,12 +375,13 @@ do
 
         tooltip:AddSeparator()
 
-        tooltip:AddHeadingRow():GetCell(1):SetText(zoneText):SetJustifyH("CENTER"):SetColSpan(0)
-        tooltip:AddHeadingRow():GetCell(1):SetText(pvpLabel):SetJustifyH("CENTER"):SetColSpan(0)
+        tooltip:AddRow():GetCell(1):SetText(zoneText):SetJustifyH("CENTER"):SetColSpan(0)
 
-        tooltip:AddSeparator()
+        tooltip:AddRow():GetCell(1):SetText(pvpLabel):SetJustifyH("CENTER"):SetColSpan(0)
 
-        coordinateRow = tooltip:AddHeadingRow()
+        tooltip:AddRow():GetCell(1):SetText(Tourist:GetContinent(currentZoneName)):SetJustifyH("CENTER"):SetColSpan(0)
+
+        coordinateRow = tooltip:AddRow()
 
         SetCoordRow()
 
@@ -466,10 +467,11 @@ do
                 local levelText = min == max and ("%s%d|r"):format(hex1, min) or ("%s%d - %d|r"):format(hex1, min, max)
 
                 local row = tooltip:AddRow()
-                row:GetCell(1):SetFormattedText("%s%s|r", hex2, zone)
-                row:GetCell(2):SetText(levelText)
-                row:GetCell(5):SetText(Tourist:GetContinent(zone))
-                row:GetCell(6):SetText("--")
+                row:GetCell(ColumnID.ZoneName):SetFormattedText("%s%s|r", hex2, zone)
+                row:GetCell(ColumnID.LevelRange):SetText(levelText)
+                row:GetCell(ColumnID.GroupSize):SetText(NOT_APPLICABLE)
+                row:GetCell(ColumnID.LocationName):SetText(Tourist:GetContinent(zone))
+                row:GetCell(ColumnID.Coordinates):SetText(NOT_APPLICABLE)
             end
 
             tooltip:AddRow(" ")
@@ -506,17 +508,13 @@ do
             :SetFormattedText("%s %s", isMiscToggled and ICON_MINUS or ICON_PLUS, MISCELLANEOUS)
 
         if isMiscToggled then
-            local row = tooltip:AddRow()
-            row:GetCell(1):SetText(CONTINENT)
-            row:GetCell(5):SetText(Tourist:GetContinent(currentZoneName))
-
             local min, max = Tourist:GetLevel(currentZoneName)
 
             if min > 0 and max > 0 then
                 local r, g, b = Tourist:GetLevelColor(currentZoneName)
                 local hex = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
 
-                row = tooltip:AddRow()
+                local row = tooltip:AddRow()
                 row:GetCell(1):SetText(LEVEL_RANGE)
                 row:GetCell(3):SetFormattedText("%s%d - %d|r", hex, min, max)
             end
