@@ -31,6 +31,8 @@ local tooltip
 -- Constants
 -------------------------------------------------------------------------------
 local LocalizedContinentNames = {
+    Z["Cosmic"],
+    Z["Azeroth"],
     Z["Kalimdor"],
     Z["Eastern Kingdoms"],
     Z["Outland"],
@@ -39,11 +41,13 @@ local LocalizedContinentNames = {
     Z["Pandaria"],
     Z["Draenor"],
     Z["Broken Isles"],
+    Z["Argus"],
     Z["Zandalar"],
     Z["Kul Tiras"],
     Z["The Shadowlands"],
     Z["Dragon Isles"],
     Z["Khaz Algar"],
+    Z["Quel'Thalas"],
 }
 
 local CONTINENT_DATA = {}
