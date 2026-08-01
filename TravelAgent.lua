@@ -333,7 +333,7 @@ do
         local row = tooltip:AddRow()
         row:GetCell(ColumnID.ZoneName):SetFormattedText("%s%s%s", complex and complex or "", colon, instance)
         row:GetCell(ColumnID.LevelRange):SetText(levelText)
-        row:GetCell(ColumnID.GroupSize):SetText(group > 0 and ("%d"):format(group) or "")
+        row:GetCell(ColumnID.GroupSize):SetLeftPadding(5):SetText(group > 0 and ("%d"):format(group) or "")
 
         if location ~= complex then
             row:GetCell(ColumnID.LocationName):SetFormattedText("%s%s|r", hex2, location or UNKNOWN)
