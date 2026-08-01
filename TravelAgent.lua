@@ -189,8 +189,8 @@ local function LDB_OnClick(display, button)
 
             ChatEdit_ActivateChat(edit_box)
             edit_box:Insert(GetCoords(true))
-        elseif IsControlKeyDown() and Atlas_Toggle then
-            Atlas_Toggle()
+        elseif IsControlKeyDown() and _G.Atlas_Toggle then
+            _G.Atlas_Toggle()
         else
             ToggleFrame(WorldMapFrame)
         end
@@ -294,7 +294,7 @@ do
         local zoneID = continentData.zone_ids[zoneName]
 
         if zoneID then
-            TomTom:AddWaypoint(zoneID, x, y, {
+            _G.TomTom:AddWaypoint(zoneID, x, y, {
                 title = ("%s (%s)"):format(instanceName, zoneName),
                 source = "TravelAgent",
             })
@@ -341,7 +341,7 @@ do
 
         row:GetCell(ColumnID.Coordinates):SetText(coordText)
 
-        if TomTom and x and y then
+        if _G.TomTom and x and y then
             row:SetScript("OnMouseUp", InstanceOnMouseUp, instance)
         end
     end
@@ -543,7 +543,7 @@ do
             tooltip:AddRow():GetCell(1):SetText(L["Left-click to open the World Map."]):SetColSpan(0)
             tooltip:AddRow():GetCell(1):SetText(L["Shift+Left-click to announce your location."]):SetColSpan(0)
 
-            if Atlas_Toggle then
+            if _G.Atlas_Toggle then
                 tooltip:AddRow():GetCell(1):SetText(L["Control+Left-click to toggle Atlas."]):SetColSpan(0)
             end
 
