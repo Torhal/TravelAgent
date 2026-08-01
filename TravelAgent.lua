@@ -176,12 +176,12 @@ local updater = CreateFrame("Frame", nil, UIParent)
 
 local function LDB_OnClick(display, button)
     if button == "RightButton" then
-        local settingsPanel = SettingsPanel
+        local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-        if settingsPanel:IsVisible() then
-            settingsPanel:Hide()
+        if AceConfigDialog.OpenFrames[AddOnFolderName] then
+            AceConfigDialog:Close(AddOnFolderName)
         else
-            Settings.OpenToCategory(TravelAgent.options_frame)
+            AceConfigDialog:Open(AddOnFolderName)
         end
     elseif button == "LeftButton" then
         if IsShiftKeyDown() then
