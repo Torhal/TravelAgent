@@ -94,7 +94,7 @@ local CHAT_TEXT -- Cache for inserting into the ChatFrame's EditBox
 -------------------------------------------------------------------------------
 
 local function GetZoneData(datafeed)
-    local zoneClassification, isSubZonePvP, factionName = GetZonePVPInfo()
+    local zoneClassification, isSubZonePvP, factionName = C_PvP.GetZonePVPInfo()
     local zoneText = GetRealZoneText()
 
     ---@type string|nil
