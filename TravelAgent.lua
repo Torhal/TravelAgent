@@ -112,7 +112,6 @@ local function GetZoneData(isDataFeed)
     local zoneClassification, isSubZonePvP, factionName = C_PvP.GetZonePVPInfo()
     local zoneText = GetRealZoneText()
 
-    ---@type string|nil
     local subZoneText = GetSubZoneText()
 
     if subZoneText == "" or subZoneText == zoneText then
