@@ -53,6 +53,12 @@ local LocalizedContinentNames = {
     Z["Quel'Thalas"],
 }
 
+---@class ContinentData
+---@field id number
+---@field zone_ids {}
+---@field zone_names {}
+
+---@type table<string, ContinentData>
 local CONTINENT_DATA = {}
 
 for index = 1, #LocalizedContinentNames do
@@ -100,7 +106,8 @@ local CHAT_TEXT -- Cache for inserting into the ChatFrame's EditBox
 -- Helper functions
 -------------------------------------------------------------------------------
 
-local function GetZoneData(datafeed)
+---@param isDataFeed boolean
+local function GetZoneData(isDataFeed)
     local zoneClassification, isSubZonePvP, factionName = C_PvP.GetZonePVPInfo()
     local zoneText = GetRealZoneText()
 
@@ -139,7 +146,7 @@ local function GetZoneData(datafeed)
 
     local zoneName, subZoneName
 
-    if datafeed then
+    if isDataFeed then
         subZoneName = db.datafeed.show_subzone and subZoneText or nil
         zoneName = db.datafeed.show_zone and zoneText or nil
     else
@@ -178,6 +185,8 @@ end
 local DrawTooltip -- Upvalue needed for chicken-or-egg-syndrome.
 local updater = CreateFrame("Frame", nil, UIParent)
 
+---@param display Frame
+---@param button "LeftButton" | "RightButton"
 local function LDB_OnClick(display, button)
     if button == "RightButton" then
         local AceConfigDialog = LibStub("AceConfigDialog-3.0")
@@ -201,6 +210,8 @@ local function LDB_OnClick(display, button)
     end
 end
 
+---@param display Frame
+---@param motion boolean
 local function LDB_OnEnter(display, motion)
     DrawTooltip(display)
 end
@@ -281,12 +292,16 @@ do
         Coordinates = 5,
     }
 
+    ---@param cell LibQTip-2.0.Cell
+    ---@param section string
     local function SectionOnMouseUp(cell, section)
         db.tooltip_sections[section] = not db.tooltip_sections[section]
 
         DrawTooltip(displayAnchor)
     end
 
+    ---@param cell LibQTip-2.0.Cell
+    ---@param instanceName? string
     local function InstanceOnMouseUp(cell, instanceName)
         if not instanceName then
             return
@@ -577,6 +592,8 @@ end -- do
 -- Event functions
 -------------------------------------------------------------------------------
 do
+    ---@param name_table table
+    ---@param id_table table
     local function InitializeZoneData(name_table, id_table, ...)
         for id = 1, select("#", ...), 1 do
             name_table[id] = select(id, ...)
