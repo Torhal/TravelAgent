@@ -158,14 +158,15 @@ local function GetZoneData(datafeed)
     return zoneText, subZoneText, label, text, color_text
 end
 
-local function GetCoords(to_chat)
+---@param isToChat? boolean
+local function GetCoords(isToChat)
     local x, y = HereBeDragons:GetPlayerZonePosition()
     x = x or 0
     y = y or 0
 
     local coords = PARENS_TEMPLATE:format(("%.2f, %.2f"):format(x * 100, y * 100))
 
-    return to_chat and ("%s %s"):format(CHAT_TEXT, coords) or coords
+    return isToChat and ("%s %s"):format(CHAT_TEXT, coords) or coords
 end
 
 -----------------------------------------------------------------------
