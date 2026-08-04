@@ -100,7 +100,9 @@ local defaults = {
 ---- Variables
 --------------------------------------------------------------------------------
 
+---@class TravelAgentDatabase
 local db
+
 local CHAT_TEXT -- Cache for inserting into the ChatFrame's EditBox
 
 --------------------------------------------------------------------------------
@@ -613,8 +615,8 @@ do
         end
 
         -- Database voodoo.
-        local temp_db = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults)
-        db = temp_db.global
+        local initializedDB = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults)
+        db = initializedDB.global
 
         self:SetupOptions()
     end
@@ -681,7 +683,9 @@ local function GetOptions()
                             get = function()
                                 return not db.datafeed.minimap_icon.hide
                             end,
-                            set = function(info, value)
+
+                            ---@param value boolean
+                            set = function(_, value)
                                 db.datafeed.minimap_icon.hide = not value
 
                                 DBIcon[value and "Show" or "Hide"](DBIcon, AddOnFolderName)
@@ -696,7 +700,9 @@ local function GetOptions()
                             get = function()
                                 return db.datafeed.show_zone
                             end,
-                            set = function(info, value)
+
+                            ---@param value boolean
+                            set = function(_, value)
                                 db.datafeed.show_zone = value
 
                                 if not db.datafeed.show_zone and not db.datafeed.show_subzone then
@@ -714,7 +720,9 @@ local function GetOptions()
                             get = function()
                                 return db.datafeed.show_subzone
                             end,
-                            set = function(info, value)
+
+                            ---@param value boolean
+                            set = function(_, value)
                                 db.datafeed.show_subzone = value
 
                                 if not db.datafeed.show_zone and not db.datafeed.show_subzone then
@@ -732,7 +740,9 @@ local function GetOptions()
                             get = function()
                                 return db.datafeed.show_coords
                             end,
-                            set = function(info, value)
+
+                            ---@param value boolean
+                            set = function(_, value)
                                 db.datafeed.show_coords = value
 
                                 if db.datafeed.show_coords then
@@ -760,7 +770,9 @@ local function GetOptions()
                             get = function()
                                 return db.tooltip.hide_hint
                             end,
-                            set = function(info, value)
+
+                            ---@param value boolean
+                            set = function(_, value)
                                 db.tooltip.hide_hint = value
                             end,
                         },
@@ -773,7 +785,9 @@ local function GetOptions()
                             get = function()
                                 return db.tooltip.show_zone
                             end,
-                            set = function(info, value)
+
+                            ---@param value boolean
+                            set = function(_, value)
                                 db.tooltip.show_zone = value
 
                                 if not db.tooltip.show_zone and not db.tooltip.show_subzone then
@@ -790,7 +804,9 @@ local function GetOptions()
                             get = function()
                                 return db.tooltip.show_subzone
                             end,
-                            set = function(info, value)
+
+                            ---@param value boolean
+                            set = function(_, value)
                                 db.tooltip.show_subzone = value
 
                                 if not db.tooltip.show_zone and not db.tooltip.show_subzone then
@@ -810,7 +826,9 @@ local function GetOptions()
                             get = function()
                                 return db.tooltip.scale
                             end,
-                            set = function(info, value)
+
+                            ---@param value number
+                            set = function(_, value)
                                 db.tooltip.scale = math.max(0.5, math.min(1.5, value))
                             end,
                         },
@@ -826,7 +844,9 @@ local function GetOptions()
                             get = function()
                                 return db.tooltip.timer
                             end,
-                            set = function(info, value)
+
+                            ---@param value number
+                            set = function(_, value)
                                 db.tooltip.timer = math.max(0.1, math.min(2, value))
                             end,
                         },
