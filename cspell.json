@@ -8,7 +8,8 @@
         "Azeroth",
         "Khaz",
         "Quel'Thalas",
-        "unlocalized"
+        "unlocalized",
+        "Upvalue"
     ],
     "ignoreWords": [],
     "import": []
