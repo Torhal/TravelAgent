@@ -635,8 +635,7 @@ do
         end
 
         -- Database voodoo.
-        local initializedDB = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults)
-        db = initializedDB.global
+        db = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults).global
 
         self:SetupOptions()
     end
