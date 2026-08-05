@@ -414,6 +414,10 @@ do
         tooltip:AddSeparator()
         tooltip:AddRow(" ")
 
+        --------------------------------------------------------------------------------
+        ---- Current Zone Instances
+        --------------------------------------------------------------------------------
+
         if Tourist:DoesZoneHaveInstances(currentZoneName) then
             local currentInstances = db.tooltip_sections.cur_instances
             local headingRow = tooltip:AddHeadingRow()
@@ -441,6 +445,10 @@ do
         end
 
         local foundBattleground = false
+
+        --------------------------------------------------------------------------------
+        ---- Recommended Instances
+        --------------------------------------------------------------------------------
 
         if Tourist:HasRecommendedInstances() then
             local recommendedInstances = db.tooltip_sections.rec_instances
@@ -470,6 +478,10 @@ do
                 tooltip:AddRow(" ")
             end
         end
+
+        --------------------------------------------------------------------------------
+        ---- Recommended Zones
+        --------------------------------------------------------------------------------
 
         local recommendedZones = db.tooltip_sections.rec_zones
 
@@ -503,6 +515,10 @@ do
             tooltip:AddRow(" ")
         end
 
+        --------------------------------------------------------------------------------
+        ---- Battlegrounds
+        --------------------------------------------------------------------------------
+
         if foundBattleground then
             local isBGToggled = db.tooltip_sections.battlegrounds
 
@@ -522,6 +538,10 @@ do
                 tooltip:AddRow(" ")
             end
         end
+
+        --------------------------------------------------------------------------------
+        ---- Miscellaneous
+        --------------------------------------------------------------------------------
 
         local isMiscToggled = db.tooltip_sections.miscellaneous
 
