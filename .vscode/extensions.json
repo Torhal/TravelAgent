@@ -1,3 +1,6 @@
 {
-  "recommendations": ["johnnymorganz.stylua", "sumneko.lua", "ketho.wow-api"]
+"recommendations": [
+    "johnnymorganz.stylua",
+    "tradeskillmaster.wowlua-ls"
+]
 }
