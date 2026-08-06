@@ -33,41 +33,64 @@ local tooltip
 ---- Constants
 --------------------------------------------------------------------------------
 
-local LocalizedContinentNames = {
-    Z["Cosmic"],
-    Z["Azeroth"],
-    Z["Kalimdor"],
-    Z["Eastern Kingdoms"],
-    Z["Outland"],
-    Z["Northrend"],
-    Z["The Maelstrom"],
-    Z["Pandaria"],
-    Z["Draenor"],
-    Z["Broken Isles"],
-    Z["Argus"],
-    Z["Zandalar"],
-    Z["Kul Tiras"],
-    Z["The Shadowlands"],
-    Z["Dragon Isles"],
-    Z["Khaz Algar"],
-    Z["Quel'Thalas"],
-}
-
 ---@class ContinentData
----@field id number
----@field zone_ids {}
----@field zone_names {}
+---@field mapID number
+---@field MapIDFromName {}
 
 ---@type table<string, ContinentData>
-local CONTINENT_DATA = {}
-
-for index = 1, #LocalizedContinentNames do
-    CONTINENT_DATA[LocalizedContinentNames[index]] = {
-        id = index,
-        zone_names = {},
-        zone_ids = {},
-    }
-end
+local CONTINENT_DATA = {
+    [Z["Cosmic"]] = {
+        mapID = 946,
+    },
+    [Z["Azeroth"]] = {
+        mapID = 947,
+    },
+    [Z["Kalimdor"]] = {
+        mapID = 12,
+    },
+    [Z["Eastern Kingdoms"]] = {
+        mapID = 13,
+    },
+    [Z["Outland"]] = {
+        mapID = 101,
+    },
+    [Z["Northrend"]] = {
+        mapID = 113,
+    },
+    [Z["The Maelstrom"]] = {
+        mapID = 948,
+    },
+    [Z["Pandaria"]] = {
+        mapID = 424,
+    },
+    [Z["Draenor"]] = {
+        mapID = 572,
+    },
+    [Z["Broken Isles"]] = {
+        mapID = 619,
+    },
+    [Z["Argus"]] = {
+        mapID = 905,
+    },
+    [Z["Zandalar"]] = {
+        mapID = 875,
+    },
+    [Z["Kul Tiras"]] = {
+        mapID = 876,
+    },
+    [Z["The Shadowlands"]] = {
+        mapID = 1550,
+    },
+    [Z["Dragon Isles"]] = {
+        mapID = 1978,
+    },
+    [Z["Khaz Algar"]] = {
+        mapID = 2274,
+    },
+    [Z["Quel'Thalas"]] = {
+        mapID = 2537,
+    },
+}
 
 local defaults = {
     global = {
@@ -312,15 +335,16 @@ do
 
         local zoneName, x, y = Tourist:GetEntrancePortalLocation(instanceName) or UNKNOWN, 0, 0
         local continentName = Tourist:GetContinent(zoneName)
-        local continentData = CONTINENT_DATA[continentName]
-        local zoneID = continentData.zone_ids[zoneName]
+        local mapID = CONTINENT_DATA[continentName].MapIDFromName[zoneName]
 
-        if zoneID then
-            _G.TomTom:AddWaypoint(zoneID, x, y, {
-                title = ("%s (%s)"):format(instanceName, zoneName),
-                source = "TravelAgent",
-            })
+        if not mapID then
+            return
         end
+
+        _G.TomTom:AddWaypoint(mapID, tonumber(x), tonumber(y), {
+            title = ("%s (%s)"):format(instanceName, zoneName),
+            source = "TravelAgent",
+        })
     end
 
     -- Gathers all data relevant to the given instance and adds it to the tooltip.
@@ -616,22 +640,28 @@ end -- do
 --------------------------------------------------------------------------------
 
 do
-    ---@param name_table table
-    ---@param id_table table
-    local function InitializeZoneData(name_table, id_table, ...)
-        for id = 1, select("#", ...), 1 do
-            name_table[id] = select(id, ...)
-        end
-
-        for id in pairs(name_table) do
-            id_table[name_table[id]] = id
-        end
-    end
-
     function TravelAgent:OnInitialize()
         -- Initialize continent/zone data
-        for continent, data in pairs(CONTINENT_DATA) do
-            InitializeZoneData(data.zone_names, data.zone_ids, C_Map.GetMapChildrenInfo(data.id))
+        for continentName, continentData in pairs(CONTINENT_DATA) do
+            continentData.MapIDFromName = {
+                [continentName] = continentData.mapID,
+            }
+
+            local parentMaps = C_Map.GetMapChildrenInfo(continentData.mapID)
+
+            for index = 1, #parentMaps do
+                local parentMap = parentMaps[index]
+
+                continentData.MapIDFromName[parentMap.name] = parentMap.mapID
+
+                local childMaps = C_Map.GetMapChildrenInfo(parentMap.mapID)
+
+                for childIndex = 1, #childMaps do
+                    local childMap = childMaps[childIndex]
+
+                    continentData.MapIDFromName[childMap.name] = childMap.mapID
+                end
+            end
         end
 
         -- Database voodoo.
