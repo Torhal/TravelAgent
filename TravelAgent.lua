@@ -11,6 +11,7 @@ local select = select
 --------------------------------------------------------------------------------
 
 local AddOnFolderName = ...
+local private = select(2, ...) ---@class PrivateNamespace
 
 local TravelAgent = LibStub("AceAddon-3.0"):NewAddon(AddOnFolderName, "AceEvent-3.0")
 
@@ -24,7 +25,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale(AddOnFolderName)
 local Z = Tourist:GetLookupTable()
 
 local DataObj
-local CoordFeed
 
 ---@type LibQTip-2.0.Tooltip|nil
 local tooltip
@@ -92,7 +92,8 @@ local LocalizedContinentDataFromName = {
     },
 }
 
-local defaults = {
+---@class DefaultPreferences: AceDB.Schema
+local DefaultPreferences = {
     global = {
         datafeed = {
             minimap_icon = {
@@ -122,9 +123,6 @@ local defaults = {
 --------------------------------------------------------------------------------
 ---- Variables
 --------------------------------------------------------------------------------
-
----@class TravelAgentDatabase
-local db
 
 local CHAT_TEXT -- Cache for inserting into the ChatFrame's EditBox
 
@@ -172,11 +170,11 @@ local function GetZoneData(isDataFeed)
     local zoneName, subZoneName
 
     if isDataFeed then
-        subZoneName = db.datafeed.show_subzone and subZoneText or nil
-        zoneName = db.datafeed.show_zone and zoneText or nil
+        subZoneName = private.db.datafeed.show_subzone and subZoneText or nil
+        zoneName = private.db.datafeed.show_zone and zoneText or nil
     else
-        subZoneName = db.tooltip.show_subzone and subZoneText or nil
-        zoneName = db.tooltip.show_zone and zoneText or nil
+        subZoneName = private.db.tooltip.show_subzone and subZoneText or nil
+        zoneName = private.db.tooltip.show_zone and zoneText or nil
     end
 
     if not zoneName and not subZoneName then
@@ -194,7 +192,7 @@ local function GetZoneData(isDataFeed)
 end
 
 ---@param isToChat? boolean
-local function GetCoords(isToChat)
+function private.GetCoords(isToChat)
     local x, y = HereBeDragons:GetPlayerZonePosition()
     x = x or 0
     y = y or 0
@@ -227,7 +225,7 @@ local function LDB_OnClick(display, button)
             local edit_box = ChatEdit_ChooseBoxForSend()
 
             ChatEdit_ActivateChat(edit_box)
-            edit_box:Insert(GetCoords(true))
+            edit_box:Insert(private.GetCoords(true))
         elseif IsControlKeyDown() and _G.Atlas_Toggle then
             _G.Atlas_Toggle()
         else
@@ -258,7 +256,7 @@ do
             return
         end
 
-        coordinateRow:GetCell(1):SetText(GetCoords()):SetJustifyH("CENTER"):SetColSpan(0)
+        coordinateRow:GetCell(1):SetText(private.GetCoords()):SetJustifyH("CENTER"):SetColSpan(0)
     end
 
     local lastUpdate = 0
@@ -291,7 +289,7 @@ do
             else
                 self.elapsed = self.elapsed + lastUpdate
 
-                if self.elapsed >= db.tooltip.timer then
+                if self.elapsed >= private.db.tooltip.timer then
                     tooltip = QTip:ReleaseTooltip(tooltip)
                     displayAnchor = nil
                     coordinateRow = nil
@@ -299,8 +297,8 @@ do
             end
         end
 
-        if CoordFeed and updateCoords then
-            CoordFeed.text = GetCoords()
+        if private.CoordFeed and updateCoords then
+            private.CoordFeed.text = private.GetCoords()
         end
 
         lastUpdate = 0
@@ -321,7 +319,7 @@ do
     ---@param cell LibQTip-2.0.Cell
     ---@param section string
     local function SectionOnMouseUp(cell, section)
-        db.tooltip_sections[section] = not db.tooltip_sections[section]
+        private.db.tooltip_sections[section] = not private.db.tooltip_sections[section]
 
         DrawTooltip(displayAnchor)
     end
@@ -411,7 +409,7 @@ do
             tooltip:EnableMouse(true)
         end
 
-        local currentZoneName, _, pvpLabel, _, zoneText = GetZoneData(false)
+        local db = private.db
 
         tooltip:Clear():SmartAnchorTo(anchor):SetScale(db.tooltip.scale)
 
@@ -424,6 +422,8 @@ do
             :SetText(AddOnFolderName)
 
         tooltip:AddSeparator()
+
+        local currentZoneName, _, pvpLabel, _, zoneText = GetZoneData(false)
 
         tooltip:AddRow():GetCell(1):SetText(zoneText):SetJustifyH("CENTER"):SetColSpan(0)
 
@@ -664,12 +664,13 @@ function TravelAgent:OnInitialize()
     end
 
     -- Database voodoo.
-    db = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults).global
+    ---@class TravelAgentDatabase
+    private.db = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", DefaultPreferences).global
 
     self:SetupOptions()
 end
 
-local CoordFeedData = {
+private.CoordFeedData = {
     type = "data source",
     icon = [[Interface\Icons\INV_Torch_Lit]],
     text = "",
@@ -693,219 +694,12 @@ function TravelAgent:OnEnable()
         OnClick = LDB_OnClick,
     })
 
-    if db.datafeed.show_coords then
-        CoordFeed = DataBroker:NewDataObject(AddOnFolderName .. "Coordinates", CoordFeedData)
+    if private.db.datafeed.show_coords then
+        private.CoordFeed = DataBroker:NewDataObject(AddOnFolderName .. "Coordinates", private.CoordFeedData)
     end
 
     if DBIcon then
-        DBIcon:Register(AddOnFolderName, DataObj, db.datafeed.minimap_icon)
+        DBIcon:Register(AddOnFolderName, DataObj, private.db.datafeed.minimap_icon)
     end
     self:Update()
-end
-
---------------------------------------------------------------------------------
----- Configuration
---------------------------------------------------------------------------------
-
-local options
-
-local function GetOptions()
-    if not options then
-        options = {
-            name = AddOnFolderName,
-            childGroups = "tab",
-            type = "group",
-            args = {
-                datafeed = {
-                    name = L["Datafeed"],
-                    order = 2,
-                    type = "group",
-                    args = {
-                        minimap_icon = {
-                            order = 1,
-                            type = "toggle",
-                            width = "full",
-                            name = L["Minimap Icon"],
-                            desc = L["Draws the icon on the minimap."],
-                            get = function()
-                                return not db.datafeed.minimap_icon.hide
-                            end,
-
-                            ---@param value boolean
-                            set = function(_, value)
-                                db.datafeed.minimap_icon.hide = not value
-
-                                DBIcon[value and "Show" or "Hide"](DBIcon, AddOnFolderName)
-                            end,
-                        },
-                        show_zone = {
-                            order = 2,
-                            type = "toggle",
-                            width = "full",
-                            name = L["Show Zone Name"],
-                            desc = L["Displays the name of the current zone."],
-                            get = function()
-                                return db.datafeed.show_zone
-                            end,
-
-                            ---@param value boolean
-                            set = function(_, value)
-                                db.datafeed.show_zone = value
-
-                                if not db.datafeed.show_zone and not db.datafeed.show_subzone then
-                                    db.datafeed.show_subzone = true
-                                end
-                                TravelAgent:Update()
-                            end,
-                        },
-                        show_subzone = {
-                            order = 3,
-                            type = "toggle",
-                            width = "full",
-                            name = L["Show Subzone Name"],
-                            desc = L["Displays the name of the current subzone."],
-                            get = function()
-                                return db.datafeed.show_subzone
-                            end,
-
-                            ---@param value boolean
-                            set = function(_, value)
-                                db.datafeed.show_subzone = value
-
-                                if not db.datafeed.show_zone and not db.datafeed.show_subzone then
-                                    db.datafeed.show_zone = true
-                                end
-                                TravelAgent:Update()
-                            end,
-                        },
-                        show_coords = {
-                            order = 4,
-                            type = "toggle",
-                            width = "full",
-                            name = L["Show Coordinates"],
-                            desc = L["Displays the coordinates of the current location."],
-                            get = function()
-                                return db.datafeed.show_coords
-                            end,
-
-                            ---@param value boolean
-                            set = function(_, value)
-                                db.datafeed.show_coords = value
-
-                                if db.datafeed.show_coords then
-                                    if not CoordFeed then
-                                        CoordFeed =
-                                            DataBroker:NewDataObject(AddOnFolderName .. "Coordinates", CoordFeedData)
-                                    end
-                                    CoordFeed.text = GetCoords()
-                                end
-                            end,
-                        },
-                    },
-                },
-                tooltip = {
-                    name = L["Tooltip"],
-                    order = 3,
-                    type = "group",
-                    args = {
-                        hide_hint = {
-                            order = 1,
-                            type = "toggle",
-                            width = "full",
-                            name = L["Hide Hint Text"],
-                            desc = L["Hides the hint text at the bottom of the tooltip."],
-                            get = function()
-                                return db.tooltip.hide_hint
-                            end,
-
-                            ---@param value boolean
-                            set = function(_, value)
-                                db.tooltip.hide_hint = value
-                            end,
-                        },
-                        show_zone = {
-                            order = 2,
-                            type = "toggle",
-                            width = "full",
-                            name = L["Show Zone Name"],
-                            desc = L["Displays the name of the current zone."],
-                            get = function()
-                                return db.tooltip.show_zone
-                            end,
-
-                            ---@param value boolean
-                            set = function(_, value)
-                                db.tooltip.show_zone = value
-
-                                if not db.tooltip.show_zone and not db.tooltip.show_subzone then
-                                    db.tooltip.show_subzone = true
-                                end
-                            end,
-                        },
-                        show_subzone = {
-                            order = 3,
-                            type = "toggle",
-                            width = "full",
-                            name = L["Show Subzone Name"],
-                            desc = L["Displays the name of the current subzone."],
-                            get = function()
-                                return db.tooltip.show_subzone
-                            end,
-
-                            ---@param value boolean
-                            set = function(_, value)
-                                db.tooltip.show_subzone = value
-
-                                if not db.tooltip.show_zone and not db.tooltip.show_subzone then
-                                    db.tooltip.show_zone = true
-                                end
-                            end,
-                        },
-                        scale = {
-                            order = 4,
-                            type = "range",
-                            width = "full",
-                            name = L["Tooltip Scale"],
-                            desc = L["Move the slider to adjust the scale of the tooltip."],
-                            min = 0.5,
-                            max = 1.5,
-                            step = 0.01,
-                            get = function()
-                                return db.tooltip.scale
-                            end,
-
-                            ---@param value number
-                            set = function(_, value)
-                                db.tooltip.scale = math.max(0.5, math.min(1.5, value))
-                            end,
-                        },
-                        timer = {
-                            order = 5,
-                            type = "range",
-                            width = "full",
-                            name = L["Tooltip Timer"],
-                            desc = L["Move the slider to adjust the tooltip fade time."],
-                            min = 0.1,
-                            max = 2,
-                            step = 0.01,
-                            get = function()
-                                return db.tooltip.timer
-                            end,
-
-                            ---@param value number
-                            set = function(_, value)
-                                db.tooltip.timer = math.max(0.1, math.min(2, value))
-                            end,
-                        },
-                    },
-                },
-            },
-        }
-    end
-    return options
-end
-
-function TravelAgent:SetupOptions()
-    LibStub("AceConfig-3.0"):RegisterOptionsTable(AddOnFolderName, GetOptions())
-    self.options_frame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(AddOnFolderName)
 end

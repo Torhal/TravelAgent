@@ -16,4 +16,6 @@
 embeds.xml
 locale.xml
 SpecializedCells/Manifest.xml
+
 TravelAgent.lua
+Preferences.lua
