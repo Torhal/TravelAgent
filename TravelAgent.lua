@@ -639,37 +639,35 @@ end -- do
 ---- Event Functions
 --------------------------------------------------------------------------------
 
-do
-    function TravelAgent:OnInitialize()
-        -- Initialize continent/zone data
-        for continentName, continentData in pairs(CONTINENT_DATA) do
-            continentData.MapIDFromName = {
-                [continentName] = continentData.mapID,
-            }
+function TravelAgent:OnInitialize()
+    -- Initialize continent/zone data
+    for continentName, continentData in pairs(CONTINENT_DATA) do
+        continentData.MapIDFromName = {
+            [continentName] = continentData.mapID,
+        }
 
-            local parentMaps = C_Map.GetMapChildrenInfo(continentData.mapID)
+        local parentMaps = C_Map.GetMapChildrenInfo(continentData.mapID)
 
-            for index = 1, #parentMaps do
-                local parentMap = parentMaps[index]
+        for index = 1, #parentMaps do
+            local parentMap = parentMaps[index]
 
-                continentData.MapIDFromName[parentMap.name] = parentMap.mapID
+            continentData.MapIDFromName[parentMap.name] = parentMap.mapID
 
-                local childMaps = C_Map.GetMapChildrenInfo(parentMap.mapID)
+            local childMaps = C_Map.GetMapChildrenInfo(parentMap.mapID)
 
-                for childIndex = 1, #childMaps do
-                    local childMap = childMaps[childIndex]
+            for childIndex = 1, #childMaps do
+                local childMap = childMaps[childIndex]
 
-                    continentData.MapIDFromName[childMap.name] = childMap.mapID
-                end
+                continentData.MapIDFromName[childMap.name] = childMap.mapID
             end
         end
-
-        -- Database voodoo.
-        db = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults).global
-
-        self:SetupOptions()
     end
-end -- do
+
+    -- Database voodoo.
+    db = LibStub("AceDB-3.0"):New(AddOnFolderName .. "DB", defaults).global
+
+    self:SetupOptions()
+end
 
 local CoordFeedData = {
     type = "data source",
