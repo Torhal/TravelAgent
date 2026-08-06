@@ -38,7 +38,7 @@ local tooltip
 ---@field MapIDFromName {}
 
 ---@type table<string, ContinentData>
-local CONTINENT_DATA = {
+local LocalizedContinentDataFromName = {
     [Z["Cosmic"]] = {
         mapID = 946,
     },
@@ -335,7 +335,7 @@ do
 
         local zoneName, x, y = Tourist:GetEntrancePortalLocation(instanceName) or UNKNOWN, 0, 0
         local continentName = Tourist:GetContinent(zoneName)
-        local mapID = CONTINENT_DATA[continentName].MapIDFromName[zoneName]
+        local mapID = LocalizedContinentDataFromName[continentName].MapIDFromName[zoneName]
 
         if not mapID then
             return
@@ -641,7 +641,7 @@ end -- do
 
 function TravelAgent:OnInitialize()
     -- Initialize continent/zone data
-    for continentName, continentData in pairs(CONTINENT_DATA) do
+    for continentName, continentData in pairs(LocalizedContinentDataFromName) do
         continentData.MapIDFromName = {
             [continentName] = continentData.mapID,
         }
